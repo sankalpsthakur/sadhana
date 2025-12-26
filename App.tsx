@@ -1,20 +1,67 @@
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { LogBox, Text, useColorScheme } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import { ThemeProvider } from './src/theme/ThemeContext';
+import { BottomTabNavigator } from './src/navigation/BottomTabNavigator';
+import { useAppStore } from './src/store/useAppStore';
+import { OnboardingSequence } from './src/components/onboarding/OnboardingSequence';
+import { useDailyCycleStore } from './src/store/useDailyCycleStore';
+import { NightModeScreen } from './src/components/flows';
+import { fontAssets, fontFamilies } from './src/theme/fonts';
 
-export default function App() {
+if (__DEV__) {
+  LogBox.ignoreAllLogs(true);
+}
+
+function AppContent() {
+  const [fontsLoaded, fontError] = useFonts(fontAssets);
+  const scheme = useColorScheme();
+  const phase = useAppStore((state) => state.phase);
+  const hasOnboarded = useAppStore((state) => state.hasOnboarded);
+  const nightModeActiveAt = useDailyCycleStore((s) => s.nightModeActiveAt);
+
+  useEffect(() => {
+    if (!fontsLoaded || fontError) return;
+    Text.defaultProps = Text.defaultProps ?? {};
+    Text.defaultProps.allowFontScaling = true;
+    const existing = Text.defaultProps.style;
+    Text.defaultProps.style = [
+      { fontFamily: fontFamilies.text.regular },
+      Array.isArray(existing) ? existing : existing ? [existing] : [],
+    ];
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  const statusStyle = scheme === 'light' ? 'dark' : 'light';
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ThemeProvider phase={phase} scheme={scheme === 'light' ? 'light' : 'dark'}>
+      <NavigationContainer>
+        {hasOnboarded ? (
+          nightModeActiveAt ? (
+            <NightModeScreen />
+          ) : (
+            <BottomTabNavigator />
+          )
+        ) : (
+          <OnboardingSequence />
+        )}
+        <StatusBar style={statusStyle} />
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppContent />
+    </SafeAreaProvider>
+  );
+}

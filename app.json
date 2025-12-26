@@ -1,30 +1,31 @@
 {
   "expo": {
-    "name": "tantra",
-    "slug": "tantra",
+    "name": "Sadhana",
+    "slug": "sadhana",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0B1418"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sadhana.app",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "Sadhana reads your sleep and recovery signals to set your daily baseline. Data stays on-device.",
+        "NSHealthUpdateUsageDescription": "Sadhana can write optional mindfulness sessions. Data stays on-device."
+      }
     },
     "android": {
+      "package": "com.sadhana.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+        "backgroundColor": "#0B1418"
+      }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "platforms": ["ios", "android", "web"]
   }
 }
