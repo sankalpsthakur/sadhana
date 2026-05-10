@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Sadhana",
+    "name": "Sadhna",
     "slug": "sadhana",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sadhana.app",
+      "bundleIdentifier": "com.sankalpsthakur.sadhana",
       "entitlements": {
         "com.apple.developer.healthkit": true
       },
@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "package": "com.sadhana.app",
+      "package": "com.sankalpsthakur.sadhana",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0B1418"

@@ -85,13 +85,13 @@ const dependencies = {
   ...(packageJson.devDependencies ?? {}),
 };
 
-if (expo.name === 'Sadhana') pass('Expo app name is Sadhana');
-else fail('Expo app name is not Sadhana');
+if (expo.name === 'Sadhna') pass('Expo app name is Sadhna');
+else fail('Expo app name is not Sadhna');
 
 if (expo.orientation === 'portrait') pass('Orientation is locked to portrait');
 else fail('Orientation is not locked to portrait');
 
-if (ios.bundleIdentifier === 'com.sadhana.app') pass('iOS bundle identifier is set');
+if (ios.bundleIdentifier === 'com.sankalpsthakur.sadhana') pass('iOS bundle identifier is set');
 else fail('iOS bundle identifier is missing or unexpected');
 
 if (ios.entitlements?.['com.apple.developer.healthkit'] === true) {
@@ -184,7 +184,11 @@ if (existsSync(iosPrivacyPath)) {
   warn('Generated app PrivacyInfo.xcprivacy is absent; verify after prebuild');
 }
 
-const screenshotDirs = ['store-readiness/screenshots', 'assets/screenshots'];
+const screenshotDirs = [
+  'store-readiness/screenshots',
+  'assets/screenshots',
+  '../ios-readiness-artifacts/app-store-drafts-2026-05-11/upload/sadhana-iphone-65',
+];
 const screenshots = screenshotDirs.flatMap((dir) => {
   const absolute = join(root, dir);
   if (!existsSync(absolute)) return [];
