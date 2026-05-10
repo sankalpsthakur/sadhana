@@ -95,7 +95,8 @@ export function OnboardingSequence() {
           </Text>
           <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>
             Sadhana is a paid practice system for working with seven inner gates:
-            fear, guilt, shame, grief, lies, illusion, and attachment.
+            fear, guilt, shame, grief, lies, illusion, and attachment. Pick the
+            gate you want to defeat first.
           </Text>
           <TouchableOpacity
             style={[styles.primaryButton, { backgroundColor: tokens.accent }]}

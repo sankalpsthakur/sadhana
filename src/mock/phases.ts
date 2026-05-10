@@ -16,8 +16,8 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Fear',
     chakra: 'Muladhara',
     chakraLocation: 'Pelvic floor',
-    description: 'Ground the body before fear turns into control.',
-    promise: 'Build safety, steadiness, and the ability to stay present under pressure.',
+    description: 'Defeat fear by training the body to recognize safety again.',
+    promise: 'Build steadiness, courage, and the ability to stay present under pressure.',
   },
   2: {
     id: 2,
@@ -25,7 +25,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Guilt',
     chakra: 'Svadhisthana',
     chakraLocation: 'Sacrum',
-    description: 'Move stuck emotion without drowning in it.',
+    description: 'Defeat guilt by moving stuck emotion without drowning in it.',
     promise: 'Recover clean desire, softness, creativity, and emotional flow.',
   },
   3: {
@@ -34,7 +34,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Shame',
     chakra: 'Manipura',
     chakraLocation: 'Solar plexus',
-    description: 'Turn self-attack into disciplined agency.',
+    description: 'Defeat shame by turning self-attack into disciplined agency.',
     promise: 'Reclaim will, action, and the right to take up space.',
   },
   4: {
@@ -43,7 +43,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Grief',
     chakra: 'Anahata',
     chakraLocation: 'Heart',
-    description: 'Let loss move through without closing the heart.',
+    description: 'Defeat grief by letting loss move through without closing the heart.',
     promise: 'Practice coherence, forgiveness, tenderness, and repair.',
   },
   5: {
@@ -52,7 +52,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Lies',
     chakra: 'Vishuddha',
     chakraLocation: 'Throat',
-    description: 'Stop leaking energy into performance and false speech.',
+    description: 'Defeat lies by ending the leak into performance and false speech.',
     promise: 'Train truthful expression, clean boundaries, and signal over noise.',
   },
   6: {
@@ -61,7 +61,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Illusion',
     chakra: 'Ajna',
     chakraLocation: 'Third eye',
-    description: 'Separate perception from projection.',
+    description: 'Defeat illusion by separating perception from projection.',
     promise: 'Strengthen witness, insight, discernment, and pattern clarity.',
   },
   7: {
@@ -70,7 +70,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Attachment',
     chakra: 'Sahasrara',
     chakraLocation: 'Crown',
-    description: 'Release grasping without abandoning devotion.',
+    description: 'Defeat attachment by releasing grasping without abandoning devotion.',
     promise: 'Integrate service, surrender, spaciousness, and clean commitment.',
   },
 };
@@ -80,12 +80,12 @@ export const phaseUnlockRequirements: Record<Phase, {
   durationDays: number;
   additionalRequirements: string[];
 }> = {
-  0: { stabilityRequired: null, durationDays: 3, additionalRequirements: ['Complete onboarding'] },
+  0: { stabilityRequired: null, durationDays: 0, additionalRequirements: ['Complete onboarding'] },
   1: { stabilityRequired: null, durationDays: 30, additionalRequirements: [] },
-  2: { stabilityRequired: 70, durationDays: 14, additionalRequirements: ['No 2-night sleep crash'] },
-  3: { stabilityRequired: 70, durationDays: 0, additionalRequirements: ['Phase 2 complete'] },
-  4: { stabilityRequired: 75, durationDays: 0, additionalRequirements: ['7 missions complete'] },
-  5: { stabilityRequired: 80, durationDays: 0, additionalRequirements: ['5 Dyad sessions'] },
-  6: { stabilityRequired: 85, durationDays: 30, additionalRequirements: ['Clean dissociation checks'] },
-  7: { stabilityRequired: 90, durationDays: 30, additionalRequirements: ['Master Lock requirements'] },
+  2: { stabilityRequired: null, durationDays: 0, additionalRequirements: [] },
+  3: { stabilityRequired: null, durationDays: 0, additionalRequirements: [] },
+  4: { stabilityRequired: null, durationDays: 0, additionalRequirements: [] },
+  5: { stabilityRequired: null, durationDays: 0, additionalRequirements: [] },
+  6: { stabilityRequired: null, durationDays: 0, additionalRequirements: [] },
+  7: { stabilityRequired: null, durationDays: 0, additionalRequirements: [] },
 };
