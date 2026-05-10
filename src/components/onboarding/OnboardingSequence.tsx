@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/useTheme';
 import { useAppStore } from '../../store/useAppStore';
@@ -98,12 +98,16 @@ export function OnboardingSequence() {
             fear, guilt, shame, grief, lies, illusion, and attachment. Pick the
             gate you want to defeat first.
           </Text>
-          <TouchableOpacity
+          <Pressable
             style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Onboarding Continue"
+            testID="OnboardingContinueButton"
             onPress={() => setStep('path')}
           >
             <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>Continue</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
 
@@ -143,14 +147,18 @@ export function OnboardingSequence() {
             ))}
           </ScrollView>
 
-          <TouchableOpacity
+          <Pressable
             style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel={`Work on ${selectedInfo.obstacle}`}
+            testID="OnboardingPhaseContinueButton"
             onPress={() => setStep('paywall')}
           >
             <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
               Work on {selectedInfo.obstacle}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
 
@@ -176,24 +184,32 @@ export function OnboardingSequence() {
           {purchaseError && (
             <Text style={[styles.errorText, { color: tokens.textSecondary }]}>{purchaseError}</Text>
           )}
-          <TouchableOpacity
+          <Pressable
             style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Start 14-day free trial"
+            testID="OnboardingStartTrialButton"
             disabled={purchaseState !== 'idle'}
             onPress={startTrial}
           >
             <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
               {purchaseState === 'purchasing' ? 'Opening App Store...' : 'Start 14-day free trial'}
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             style={styles.restoreButton}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Restore purchases"
+            testID="OnboardingRestoreButton"
             disabled={purchaseState !== 'idle'}
             onPress={restore}
           >
             <Text style={[styles.restoreText, { color: tokens.textSecondary }]}>
               {purchaseState === 'restoring' ? 'Restoring...' : SADHANA_PAYWALL_COPY.restore}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
     </SafeAreaView>
