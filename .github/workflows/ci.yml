@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  app-checks:
+    name: Expo and store readiness
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+      - run: npm run check:type
+      - run: npm run check:store-readiness
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+
+      - name: Install CocoaPods
+        working-directory: ios
+        run: pod install
+
+      - name: Build iOS app
+        working-directory: ios
+        run: >
+          xcodebuild
+          -workspace Sadhana.xcworkspace
+          -scheme Sadhana
+          -configuration Debug
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+          CODE_SIGNING_ALLOWED=NO
+          build
