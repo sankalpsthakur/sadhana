@@ -6,6 +6,7 @@ import {
   openHealthConnectSettings,
   readRecords,
   requestPermission,
+  SdkAvailabilityStatus,
 } from 'react-native-health-connect';
 
 type InitStatus = 'uninitialized' | 'ready' | 'unavailable' | 'denied';
@@ -29,8 +30,7 @@ async function initHealthConnect(): Promise<boolean> {
   initPromise = withTimeout(
     (async () => {
       const status = await getSdkStatus();
-    // See constants in the library; 0 indicates available in current versions.
-    if (status !== 0) {
+    if (status !== SdkAvailabilityStatus.SDK_AVAILABLE) {
       initStatus = 'unavailable';
       return false;
     }

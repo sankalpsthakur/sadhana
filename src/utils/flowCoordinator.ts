@@ -144,11 +144,10 @@ export function coordinateFlow(input: CoordinatorInput): FlowDecision {
     flowCards.push('morning-checkin-prompt');
   }
 
-  // 3. Brahma Muhurta HV prompt (Phase 6+, eligible)
+  // 3. Brahma Muhurta HV prompt (eligible state only)
   if (
     !activeFlow &&
     isBrahmaMuhurta(now) &&
-    input.phase >= 6 &&
     isHVEligible(input.stability, band) &&
     !input.hasBlockingLock
   ) {
@@ -156,9 +155,8 @@ export function coordinateFlow(input: CoordinatorInput): FlowDecision {
     // Don't force activeFlow - user can choose
   }
 
-  // 4. Dream capture window (Phase 2+)
+  // 4. Dream capture window
   const canCaptureDream =
-    input.phase >= 2 &&
     isDreamWindowOpen(input.dailyCycle.wakeTimeInferred, now) &&
     !input.dailyCycle.dreamCaptured &&
     input.dailyCycle.morningCheckinAt !== null &&
@@ -168,11 +166,10 @@ export function coordinateFlow(input: CoordinatorInput): FlowDecision {
     flowCards.push('dream-capture-prompt');
   }
 
-  // 5. Mission selection (Phase 3+, morning, yellow)
+  // 5. Mission selection (morning, yellow)
   if (
     !activeFlow &&
     window === 'MORNING' &&
-    input.phase >= 3 &&
     input.moodQuadrant === 'Yellow' &&
     !input.dailyCycle.mission &&
     input.dailyCycle.morningCheckinAt !== null
@@ -180,10 +177,9 @@ export function coordinateFlow(input: CoordinatorInput): FlowDecision {
     flowCards.push('mission-reminder');
   }
 
-  // 6. Deep work nudge (Day window, Phase 3+, Yellow, stable)
+  // 6. Deep work nudge (day window, yellow, stable)
   const canStartDeepWork =
     window === 'DAY' &&
-    input.phase >= 3 &&
     input.moodQuadrant === 'Yellow' &&
     input.stability >= 70 &&
     !input.hasBlockingLock &&
@@ -193,8 +189,8 @@ export function coordinateFlow(input: CoordinatorInput): FlowDecision {
     flowCards.push('deep-work-nudge');
   }
 
-  // 7. Dyad status (Phase 4+, morning)
-  if (input.phase >= 4 && window === 'MORNING' && !input.dailyCycle.dyadCheckinDone) {
+  // 7. Dyad status (morning)
+  if (window === 'MORNING' && !input.dailyCycle.dyadCheckinDone) {
     flowCards.push('dyad-status');
   }
 
@@ -227,21 +223,6 @@ export function coordinateFlow(input: CoordinatorInput): FlowDecision {
 
   if (shouldShowSealReminder) {
     flowCards.push('seal-reminder');
-  }
-
-  // Add phase-gated blocks
-  if (input.phase < 2) {
-    blockedPractices.push({ practiceId: 'dream-capture', reason: 'Unlocks at Phase 2' });
-  }
-  if (input.phase < 3) {
-    blockedPractices.push({ practiceId: 'deep-work', reason: 'Unlocks at Phase 3' });
-    blockedPractices.push({ practiceId: 'mission', reason: 'Unlocks at Phase 3' });
-  }
-  if (input.phase < 6) {
-    blockedPractices.push({ practiceId: 'neti', reason: 'Unlocks at Phase 6' });
-  }
-  if (input.phase < 7) {
-    blockedPractices.push({ practiceId: 'serpent', reason: 'Unlocks at Phase 7' });
   }
 
   // Add stability blocks

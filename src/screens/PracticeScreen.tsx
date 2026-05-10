@@ -12,7 +12,6 @@ import {
   Practice,
   getAvailablePractices,
   getRecommendedPractices,
-  getLockedPractices,
   getTimeBlockedPractices,
   getCurrentTimeWindow,
   timeWindowLabels,
@@ -21,7 +20,6 @@ import {
 type PracticeStatus =
   | 'available'
   | 'recommended'
-  | 'locked-phase'
   | 'locked-time'
   | 'locked-stability'
   | 'cooldown'
@@ -135,23 +133,6 @@ export function PracticeScreen() {
       result.push({
         title: 'Cooldown',
         data: cooldownLocked,
-      });
-    }
-
-    // Phase-locked
-    const phaseLocked = getLockedPractices(phase)
-      .map((practice) => {
-        let status: PracticeStatus = 'locked-phase';
-        if (practice.minStability && stability < practice.minStability) {
-          status = 'locked-stability';
-        }
-        return { practice, status };
-      });
-
-    if (phaseLocked.length > 0) {
-      result.push({
-        title: 'Locked',
-        data: phaseLocked,
       });
     }
 

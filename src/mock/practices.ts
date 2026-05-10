@@ -284,9 +284,6 @@ export function getAvailablePractices(
   quadrant?: MoodQuadrant
 ): Practice[] {
   return practiceLibrary.filter((p) => {
-    // Phase check
-    if (p.minPhase > phase) return false;
-
     // Stability check
     if (p.minStability && stability < p.minStability) return false;
 
@@ -317,13 +314,12 @@ export function getRecommendedPractices(
 
 // Get practices locked by phase
 export function getLockedPractices(phase: Phase): Practice[] {
-  return practiceLibrary.filter((p) => p.minPhase > phase);
+  return [];
 }
 
 // Get practices locked by time window
 export function getTimeBlockedPractices(phase: Phase, stability: number): Practice[] {
   return practiceLibrary.filter((p) => {
-    if (p.minPhase > phase) return false;
     if (p.minStability && stability < p.minStability) return false;
     return !isPracticeAvailableNow(p);
   });

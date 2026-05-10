@@ -53,7 +53,6 @@ export function TrendsScreen() {
   const { tokens, quadrants } = useTheme();
 
   const stability = useAppStore((state) => state.stability);
-  const phase = useAppStore((state) => state.phase);
   const isLocked = isTrendsLocked(stability);
 
   const checkins = useDailyCycleStore((s) => s.checkins);
@@ -218,11 +217,9 @@ export function TrendsScreen() {
           <Text style={[styles.patternInsight, { color: tokens.textPrimary }]}>
             {todayPattern.insight}
           </Text>
-          {phase >= 3 && (
-            <Text style={[styles.patternHint, { color: tokens.textSecondary }]}>
-              Check the Integrity Map for pillar balance
-            </Text>
-          )}
+          <Text style={[styles.patternHint, { color: tokens.textSecondary }]}>
+            Check the Integrity Map for pillar balance when your state feels steady.
+          </Text>
         </View>
 
         {/* Safety Stats */}
@@ -250,14 +247,11 @@ export function TrendsScreen() {
           </View>
         </View>
 
-        {/* Phase hint for advanced features */}
-        {phase < 3 && (
-          <View style={[styles.hintCard, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}>
-            <Text style={[styles.hintText, { color: tokens.textSecondary }]}>
-              Reach Phase 3 to unlock the Integrity Map and deeper pattern insights
-            </Text>
-          </View>
-        )}
+        <View style={[styles.hintCard, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}>
+          <Text style={[styles.hintText, { color: tokens.textSecondary }]}>
+            Deeper pattern insights are guided by stability and recent practice signals, not a forced gate order.
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

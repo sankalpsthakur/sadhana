@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Alert, Platform, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../theme/useTheme';
@@ -89,6 +89,8 @@ export function HomeScreen() {
     Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web';
   const healthSource =
     healthPlatform === 'ios' ? 'apple-health' : healthPlatform === 'android' ? 'health-connect' : 'web';
+  const openHealthPermissionSettings =
+    Platform.OS === 'android' ? openHealthSettings : Linking.openSettings;
 
   const syncHealthSnapshot = async (trigger: 'auto' | 'manual') => {
     if (!healthIntegrationEnabled) return;
@@ -130,7 +132,7 @@ export function HomeScreen() {
           trigger,
           status: hasData ? 'success' : 'no-data',
           source: healthSource,
-          snapshot,
+          hasData,
         });
       }
     } catch (error) {
@@ -170,6 +172,10 @@ export function HomeScreen() {
         date: dailyCycle.date,
         wakeTimeInferred: dailyCycle.wakeTimeInferred,
         sensorSnapshot: dailyCycle.sensorSnapshot,
+        healthSyncStatus: dailyCycle.healthSyncStatus,
+        healthSyncAt: dailyCycle.healthSyncAt,
+        healthSyncError: dailyCycle.healthSyncError,
+        healthSyncSource: dailyCycle.healthSyncSource,
         morningCheckinAt: dailyCycle.morningCheckinAt,
         sealedAt: dailyCycle.sealedAt,
         nightModeActiveAt: dailyCycle.nightModeActiveAt,
@@ -525,7 +531,10 @@ export function HomeScreen() {
                 Alert.alert(
                   Platform.OS === 'ios' ? 'Apple Health' : 'Health Connect',
                   `${message}\n\nData stays on-device. Enable access in system settings and try again.`,
-                  [{ text: 'OK' }]
+                  [
+                    { text: 'Not now', style: 'cancel' },
+                    { text: 'Settings', onPress: openHealthPermissionSettings },
+                  ]
                 );
                 return;
               }
@@ -533,7 +542,7 @@ export function HomeScreen() {
               await syncHealthSnapshot('manual');
             }}
             onSync={() => syncHealthSnapshot('manual')}
-            onOpenSettings={Platform.OS === 'android' ? openHealthSettings : undefined}
+            onOpenSettings={openHealthPermissionSettings}
           />
         )}
 

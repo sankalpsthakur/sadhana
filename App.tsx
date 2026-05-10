@@ -11,6 +11,12 @@ import { OnboardingSequence } from './src/components/onboarding/OnboardingSequen
 import { useDailyCycleStore } from './src/store/useDailyCycleStore';
 import { NightModeScreen } from './src/components/flows';
 import { fontAssets, fontFamilies } from './src/theme/fonts';
+import { refreshSadhanaEntitlement } from './src/billing';
+
+type TextDefaults = {
+  allowFontScaling?: boolean;
+  style?: React.ComponentProps<typeof Text>['style'];
+};
 
 if (__DEV__) {
   LogBox.ignoreAllLogs(true);
@@ -21,18 +27,46 @@ function AppContent() {
   const scheme = useColorScheme();
   const phase = useAppStore((state) => state.phase);
   const hasOnboarded = useAppStore((state) => state.hasOnboarded);
+  const entitlement = useAppStore((state) => state.entitlement);
+  const setEntitlement = useAppStore((state) => state.setEntitlement);
+  const clearEntitlement = useAppStore((state) => state.clearEntitlement);
   const nightModeActiveAt = useDailyCycleStore((s) => s.nightModeActiveAt);
 
   useEffect(() => {
     if (!fontsLoaded || fontError) return;
-    Text.defaultProps = Text.defaultProps ?? {};
-    Text.defaultProps.allowFontScaling = true;
-    const existing = Text.defaultProps.style;
-    Text.defaultProps.style = [
+    const textWithDefaults = Text as typeof Text & { defaultProps?: TextDefaults };
+    textWithDefaults.defaultProps = textWithDefaults.defaultProps ?? {};
+    textWithDefaults.defaultProps.allowFontScaling = true;
+    const existing = textWithDefaults.defaultProps.style;
+    textWithDefaults.defaultProps.style = [
       { fontFamily: fontFamilies.text.regular },
       Array.isArray(existing) ? existing : existing ? [existing] : [],
     ];
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    if (!hasOnboarded) return;
+
+    let cancelled = false;
+    refreshSadhanaEntitlement()
+      .then((snapshot) => {
+        if (cancelled) return;
+        if (snapshot.active) {
+          setEntitlement(snapshot);
+          return;
+        }
+        clearEntitlement();
+      })
+      .catch(() => {
+        if (!cancelled && !entitlement?.active) {
+          clearEntitlement();
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasOnboarded, entitlement?.active, setEntitlement, clearEntitlement]);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -43,7 +77,7 @@ function AppContent() {
   return (
     <ThemeProvider phase={phase} scheme={scheme === 'light' ? 'light' : 'dark'}>
       <NavigationContainer>
-        {hasOnboarded ? (
+        {hasOnboarded && entitlement?.active ? (
           nightModeActiveAt ? (
             <NightModeScreen />
           ) : (

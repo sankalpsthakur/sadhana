@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/useTheme';
-import { useAppStore } from '../store/useAppStore';
 import { useDailyCycleStore } from '../store/useDailyCycleStore';
 import { MoodDot } from '../components/shared/MoodDot';
 import { MoodQuadrant } from '../types';
@@ -24,8 +23,6 @@ export function JournalScreen() {
   const { tokens, quadrants } = useTheme();
   const [activeTab, setActiveTab] = useState<TabType>('today');
   const [showDreamDetail, setShowDreamDetail] = useState(false);
-
-  const phase = useAppStore((s) => s.phase);
 
   const checkins = useDailyCycleStore((s) => s.checkins);
   const practicesCompleted = useDailyCycleStore((s) => s.practicesCompleted);
@@ -136,10 +133,10 @@ export function JournalScreen() {
     return 'None';
   };
 
-  const tabs: { key: TabType; label: string; minPhase?: number }[] = [
+  const tabs: { key: TabType; label: string }[] = [
     { key: 'today', label: 'Today' },
     { key: 'history', label: 'History' },
-    { key: 'dreams', label: 'Dreams', minPhase: 2 },
+    { key: 'dreams', label: 'Dreams' },
   ];
 
   const renderTodayTab = () => (
@@ -222,20 +219,6 @@ export function JournalScreen() {
   );
 
   const renderDreamsTab = () => {
-    if (phase < 2) {
-      return (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>⊘</Text>
-          <Text style={[styles.emptyTitle, { color: tokens.textPrimary }]}>
-            Dreams Locked
-          </Text>
-          <Text style={[styles.emptySubtitle, { color: tokens.textSecondary }]}>
-            Reach Phase 2 (Flow) to unlock dream journaling
-          </Text>
-        </View>
-      );
-    }
-
     return (
       <ScrollView
         style={styles.scrollView}
@@ -315,7 +298,6 @@ export function JournalScreen() {
       {/* Tabs */}
       <View style={[styles.tabBar, { borderBottomColor: tokens.border }]}>
         {tabs.map((tab) => {
-          const isLocked = tab.minPhase !== undefined && phase < tab.minPhase;
           const isActive = activeTab === tab.key;
 
           return (
@@ -325,16 +307,13 @@ export function JournalScreen() {
                 styles.tab,
                 isActive && [styles.activeTab, { borderBottomColor: tokens.accent }],
               ]}
-              onPress={() => !isLocked && setActiveTab(tab.key)}
-              disabled={isLocked}
+              onPress={() => setActiveTab(tab.key)}
             >
               <Text
                 style={[
                   styles.tabText,
                   {
-                    color: isLocked
-                      ? tokens.textSecondary
-                      : isActive
+                    color: isActive
                         ? tokens.accent
                         : tokens.textPrimary,
                   },
@@ -342,9 +321,6 @@ export function JournalScreen() {
               >
                 {tab.label}
               </Text>
-              {isLocked && (
-                <Text style={[styles.lockIcon, { color: tokens.textSecondary }]}>🔒</Text>
-              )}
             </TouchableOpacity>
           );
         })}

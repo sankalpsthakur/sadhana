@@ -13,6 +13,7 @@ import {
   MoodCoordinates,
 } from '../types';
 import { persistStorage } from './persistStorage';
+import type { SadhanaEntitlementSnapshot } from '../billing';
 
 interface AppState {
   // Phase (capability level)
@@ -74,6 +75,11 @@ interface AppState {
   // Onboarding
   hasOnboarded: boolean;
   completeOnboarding: () => void;
+
+  // Paid access
+  entitlement: SadhanaEntitlementSnapshot | null;
+  setEntitlement: (entitlement: SadhanaEntitlementSnapshot | null) => void;
+  clearEntitlement: () => void;
 }
 
 const defaultLocks: SafetyLocks = {
@@ -100,6 +106,7 @@ const defaultState = {
   mode: 'Mirror' as Mode,
   confidence: 'Self-report' as Confidence,
   healthIntegrationEnabled: false,
+  entitlement: null as SadhanaEntitlementSnapshot | null,
   moodQuadrant: null as MoodQuadrant,
   moodCoordinates: null as MoodCoordinates | null,
   bodyZone: null as BodyZone,
@@ -169,6 +176,8 @@ export const useAppStore = create<AppState>()(
       },
 
       completeOnboarding: () => set({ hasOnboarded: true }),
+      setEntitlement: (entitlement) => set({ entitlement }),
+      clearEntitlement: () => set({ entitlement: null, hasOnboarded: false }),
 
       reset: () => set(defaultState),
     }),
@@ -177,6 +186,7 @@ export const useAppStore = create<AppState>()(
       storage: createJSONStorage(() => persistStorage),
       partialize: (state) => ({
         hasOnboarded: state.hasOnboarded,
+        entitlement: state.entitlement,
         phase: state.phase,
         stability: state.stability,
         healthIntegrationEnabled: state.healthIntegrationEnabled,

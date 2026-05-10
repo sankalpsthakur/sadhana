@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -14,9 +14,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sadhana.app",
+      "entitlements": {
+        "com.apple.developer.healthkit": true
+      },
       "infoPlist": {
-        "NSHealthShareUsageDescription": "Sadhana reads your sleep and recovery signals to set your daily baseline. Data stays on-device.",
-        "NSHealthUpdateUsageDescription": "Sadhana can write optional mindfulness sessions. Data stays on-device."
+        "NSHealthShareUsageDescription": "Sadhana reads sleep duration, heart-rate variability, and resting heart rate from Health to personalize daily practice guidance on your device. Sadhana does not write to Health."
       }
     },
     "android": {
@@ -26,6 +28,14 @@
         "backgroundColor": "#0B1418"
       }
     },
-    "platforms": ["ios", "android", "web"]
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "plugins": [
+      "expo-font",
+      "expo-iap"
+    ]
   }
 }

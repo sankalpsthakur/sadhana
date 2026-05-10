@@ -1,107 +1,45 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../theme/useTheme';
 import { useAppStore } from '../../store/useAppStore';
-import { getStabilityBand } from '../../store/selectors';
-import { phaseInfo, phaseUnlockRequirements } from '../../mock/phases';
-import { Phase } from '../../types';
+import { phaseInfo } from '../../mock/phases';
 import { fontFamilies } from '../../theme/fonts';
+import type { RootTabParamList } from '../../navigation/types';
 
 export function LadderCard() {
   const { tokens } = useTheme();
+  const navigation = useNavigation<BottomTabNavigationProp<RootTabParamList>>();
   const phase = useAppStore((state) => state.phase);
-  const stability = useAppStore((state) => state.stability);
 
   const currentInfo = phaseInfo[phase];
-  const nextPhase = (phase < 7 ? phase + 1 : null) as Phase | null;
-  const nextInfo = nextPhase ? phaseInfo[nextPhase] : null;
-  const nextRequirements = nextPhase ? phaseUnlockRequirements[nextPhase] : null;
-  const band = getStabilityBand(stability);
-
-  // Calculate progress toward next phase
-  const getProgress = (): number => {
-    if (!nextRequirements || nextRequirements.stabilityRequired === null) {
-      return 0;
-    }
-    const required = nextRequirements.stabilityRequired;
-    if (stability >= required) return 100;
-    return Math.round((stability / required) * 100);
-  };
-
-  const getRequirementText = (): string => {
-    if (!nextRequirements) return 'You have reached the highest phase.';
-
-    const parts: string[] = [];
-
-    if (nextRequirements.stabilityRequired) {
-      const needed = nextRequirements.stabilityRequired - stability;
-      if (needed > 0) {
-        parts.push(`+${needed} stability needed`);
-      } else {
-        parts.push('Stability requirement met');
-      }
-    }
-
-    if (nextRequirements.durationDays > 0) {
-      parts.push(`${nextRequirements.durationDays} days at current band`);
-    }
-
-    if (nextRequirements.additionalRequirements.length > 0) {
-      parts.push(...nextRequirements.additionalRequirements);
-    }
-
-    return parts.join(' • ');
-  };
-
-  const progress = getProgress();
 
   return (
     <View style={[styles.container, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}>
       <View style={styles.header}>
         <View>
-          <Text style={[styles.label, { color: tokens.textSecondary }]}>Current Phase</Text>
+          <Text style={[styles.label, { color: tokens.textSecondary }]}>Chosen Gate</Text>
           <Text style={[styles.phaseName, { color: tokens.textPrimary }]}>
-            {currentInfo.name}
+            {currentInfo.obstacle}
           </Text>
           <Text style={[styles.chakra, { color: tokens.textSecondary }]}>
             {currentInfo.chakra} • {currentInfo.chakraLocation}
           </Text>
         </View>
 
-        {nextInfo && (
-          <View style={styles.nextBadge}>
-            <Text style={[styles.nextLabel, { color: tokens.textSecondary }]}>Next</Text>
-            <Text style={[styles.nextName, { color: tokens.accent }]}>{nextInfo.name}</Text>
-          </View>
-        )}
+        <View style={styles.nextBadge}>
+          <Text style={[styles.nextLabel, { color: tokens.textSecondary }]}>Premium</Text>
+          <Text style={[styles.nextName, { color: tokens.accent }]}>All Gates</Text>
+        </View>
       </View>
 
-      {/* Progress bar */}
-      {nextPhase && (
-        <View style={styles.progressContainer}>
-          <View style={[styles.progressBg, { backgroundColor: tokens.border }]}>
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  backgroundColor: tokens.accent,
-                  width: `${progress}%`,
-                },
-              ]}
-            />
-          </View>
-          <Text style={[styles.progressText, { color: tokens.textSecondary }]}>
-            {progress}%
-          </Text>
-        </View>
-      )}
-
       <Text style={[styles.requirement, { color: tokens.textSecondary }]}>
-        {getRequirementText()}
+        {currentInfo.promise} You can switch gates at any time; safety checks only limit practices that need a steadier state.
       </Text>
 
-      <TouchableOpacity style={styles.link}>
-        <Text style={[styles.linkText, { color: tokens.accent }]}>View Ladder →</Text>
+      <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Ladder')}>
+        <Text style={[styles.linkText, { color: tokens.accent }]}>Choose another gate</Text>
       </TouchableOpacity>
     </View>
   );
@@ -146,29 +84,6 @@ const styles = StyleSheet.create({
   nextName: {
     fontFamily: fontFamilies.text.semibold,
     fontSize: 13,
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  progressBg: {
-    flex: 1,
-    height: 6,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: 6,
-    borderRadius: 3,
-  },
-  progressText: {
-    fontFamily: fontFamilies.text.semibold,
-    fontSize: 12,
-    fontVariant: ['tabular-nums'],
-    minWidth: 36,
-    textAlign: 'right',
   },
   requirement: {
     fontFamily: fontFamilies.text.regular,

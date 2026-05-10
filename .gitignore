@@ -33,9 +33,23 @@ yarn-error.*
 # local env files
 .env*.local
 
+# Google Health API local OAuth token cache
+.google-health-token.json
+.google-health-token*.json
+*.google-health-token.json
+
 # typescript
 *.tsbuildinfo
 
 # generated native folders
 /ios
 /android
+/.bundle/
+/.bundle-home/
+/vendor/
+/_derivedData
+/_derivedData/
+/_derivedData*/
+DerivedData/
+DerivedData-*/
+*.xcresult/

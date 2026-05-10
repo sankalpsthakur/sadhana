@@ -7,7 +7,7 @@ import { fontFamilies } from '../../theme/fonts';
 
 interface PracticeCardProps {
   practice: Practice;
-  status: 'available' | 'recommended' | 'locked-phase' | 'locked-time' | 'locked-stability' | 'cooldown' | 'completed';
+  status: 'available' | 'recommended' | 'locked-time' | 'locked-stability' | 'cooldown' | 'completed';
   currentPhase?: Phase;
   cooldownLabel?: string;
   onPress?: () => void;
@@ -26,8 +26,6 @@ export function PracticeCard({ practice, status, cooldownLabel, currentPhase, on
         return { label: null, color: tokens.accent };
       case 'recommended':
         return { label: 'Recommended', color: quadrants.Green };
-      case 'locked-phase':
-        return { label: `Phase ${practice.minPhase}+`, color: tokens.textSecondary };
       case 'locked-time':
         const windows = practice.timeWindows as TimeWindow[];
         const windowLabel = windows.length === 1 ? timeWindowLabels[windows[0]] : 'Later';

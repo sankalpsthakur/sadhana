@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/useTheme';
 import { useAppStore } from '../store/useAppStore';
@@ -10,40 +10,42 @@ import { fontFamilies } from '../theme/fonts';
 export function LadderScreen() {
   const { tokens } = useTheme();
   const currentPhase = useAppStore((state) => state.phase);
+  const setPhase = useAppStore((state) => state.setPhase);
 
   const phases: Phase[] = [1, 2, 3, 4, 5, 6, 7];
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: tokens.bgPrimary }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[styles.title, { color: tokens.textPrimary }]}>The Ladder</Text>
+        <Text style={[styles.title, { color: tokens.textPrimary }]}>Seven Gates</Text>
         <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>
-          Seven Phases of Sovereignty
+          Seven gates. All are available with Premium. Choose the one you want to work with today.
         </Text>
 
         <View style={styles.ladder}>
           {phases.map((phaseId) => {
             const info = phaseInfo[phaseId];
-            const isUnlocked = phaseId <= currentPhase;
             const isCurrent = phaseId === currentPhase;
 
             return (
-              <View
+              <TouchableOpacity
                 key={phaseId}
                 style={[
                   styles.phaseRow,
                   {
                     backgroundColor: isCurrent ? tokens.bgSecondary : 'transparent',
-                    borderColor: isUnlocked ? tokens.accent : tokens.border,
-                    opacity: isUnlocked ? 1 : 0.5,
+                    borderColor: isCurrent ? tokens.accent : tokens.border,
                   },
                 ]}
+                accessibilityRole="button"
+                accessibilityLabel={`Select ${info.obstacle}`}
+                onPress={() => setPhase(phaseId)}
               >
                 <View style={styles.phaseNumber}>
                   <Text
                     style={[
                       styles.phaseNumberText,
-                      { color: isUnlocked ? tokens.accent : tokens.textSecondary },
+                      { color: isCurrent ? tokens.accent : tokens.textSecondary },
                     ]}
                   >
                     {phaseId}
@@ -51,23 +53,20 @@ export function LadderScreen() {
                 </View>
                 <View style={styles.phaseInfo}>
                   <Text style={[styles.phaseName, { color: tokens.textPrimary }]}>
-                    {info.name}
+                    {info.obstacle}
                   </Text>
                   <Text style={[styles.phaseChakra, { color: tokens.textSecondary }]}>
-                    {info.chakra}
+                    {info.promise}
                   </Text>
                 </View>
                 {isCurrent && (
                   <View style={[styles.currentBadge, { backgroundColor: tokens.accent }]}>
                     <Text style={[styles.currentBadgeText, { color: tokens.bgPrimary }]}>
-                      Current
+                      Active
                     </Text>
                   </View>
                 )}
-                {!isUnlocked && (
-                  <Text style={[styles.lockIcon, { color: tokens.textSecondary }]}>🔒</Text>
-                )}
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
@@ -127,6 +126,7 @@ const styles = StyleSheet.create({
   phaseChakra: {
     fontFamily: fontFamilies.text.regular,
     fontSize: 12,
+    lineHeight: 18,
   },
   currentBadge: {
     paddingHorizontal: 8,
@@ -136,8 +136,5 @@ const styles = StyleSheet.create({
   currentBadgeText: {
     fontFamily: fontFamilies.text.medium,
     fontSize: 10,
-  },
-  lockIcon: {
-    fontSize: 16,
   },
 });

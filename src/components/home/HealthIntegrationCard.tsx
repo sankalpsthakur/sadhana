@@ -56,28 +56,46 @@ export function HealthIntegrationCard({
 }: HealthIntegrationCardProps) {
   const { tokens } = useTheme();
   const platformLabel = platform === 'ios' ? 'Apple Health' : platform === 'android' ? 'Health Connect' : 'Health';
+  const settingsLabel = platform === 'ios' ? 'Open app settings' : `Open ${platformLabel} settings`;
 
   if (!isEnabled) {
     return (
-      <TouchableOpacity
-        style={[styles.card, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}
-        accessibilityRole="button"
-        accessibilityLabel={`Connect ${platformLabel}`}
-        disabled={isConnecting}
-        onPress={onConnect}
-      >
+      <View style={[styles.card, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}>
         <Text style={[styles.title, { color: tokens.textPrimary }]}>
           {isConnecting ? 'Connecting...' : `Connect ${platformLabel}`}
         </Text>
         <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>
-          Read sleep + recovery signals. Stored locally.
+          Reads sleep, HRV, and resting heart rate only. Nothing is written to Health. Metrics stay on this device.
         </Text>
         {connectError && (
           <Text style={[styles.errorText, { color: tokens.textSecondary }]}>
             {connectError}
           </Text>
         )}
-      </TouchableOpacity>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={[styles.actionButton, { borderColor: tokens.border }]}
+            accessibilityRole="button"
+            accessibilityLabel={`Connect ${platformLabel}`}
+            disabled={isConnecting}
+            onPress={onConnect}
+          >
+            <Text style={[styles.actionText, { color: tokens.textPrimary }]}>
+              {isConnecting ? 'Connecting...' : 'Connect'}
+            </Text>
+          </TouchableOpacity>
+          {connectError && onOpenSettings && (
+            <TouchableOpacity
+              style={[styles.actionButton, { borderColor: tokens.border }]}
+              accessibilityRole="button"
+              accessibilityLabel={settingsLabel}
+              onPress={onOpenSettings}
+            >
+              <Text style={[styles.actionText, { color: tokens.textPrimary }]}>Settings</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
     );
   }
 
@@ -125,7 +143,7 @@ export function HealthIntegrationCard({
           <TouchableOpacity
             style={[styles.actionButton, { borderColor: tokens.border }]}
             accessibilityRole="button"
-            accessibilityLabel="Open Health Settings"
+            accessibilityLabel={settingsLabel}
             onPress={onOpenSettings}
           >
             <Text style={[styles.actionText, { color: tokens.textPrimary }]}>Settings</Text>

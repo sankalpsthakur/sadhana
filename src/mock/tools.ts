@@ -170,13 +170,13 @@ export const toolLibrary: ToolConfig[] = [
   },
 ];
 
-// Get tools available for a given phase and mode
-export function getAvailableTools(phase: Phase, mode: Mode): Tool[] {
+// Get tools available for a given gate and mode. Gate choice is non-sequential;
+// readiness is enforced by mode, stability, cooldowns, and time windows.
+export function getAvailableTools(_phase: Phase, mode: Mode): Tool[] {
   return toolLibrary
     .filter((tool) => {
-      const phaseOk = tool.minPhase <= phase;
       const modeOk = tool.modes === 'all' || tool.modes.includes(mode);
-      return phaseOk && modeOk;
+      return modeOk;
     })
     .map((tool) => ({
       id: tool.id,
@@ -187,9 +187,9 @@ export function getAvailableTools(phase: Phase, mode: Mode): Tool[] {
 }
 
 // Get primary practice for current mode
-export function getPrimaryPractice(mode: Mode, phase: Phase): ToolConfig | null {
+export function getPrimaryPractice(mode: Mode, _phase: Phase): ToolConfig | null {
   const modeTools = toolLibrary.filter(
-    (tool) => tool.minPhase <= phase && (tool.modes === 'all' || tool.modes.includes(mode))
+    (tool) => tool.modes === 'all' || tool.modes.includes(mode)
   );
 
   // Return the first tool that matches the mode specifically

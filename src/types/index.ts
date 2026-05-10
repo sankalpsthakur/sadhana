@@ -62,9 +62,11 @@ export interface MoodCoordinates {
 export interface PhaseInfo {
   id: Phase;
   name: string;
+  obstacle: string;
   chakra: string;
   chakraLocation: string;
   description: string;
+  promise: string;
 }
 
 // Tool card states

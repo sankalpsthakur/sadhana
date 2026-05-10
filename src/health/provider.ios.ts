@@ -15,7 +15,7 @@ const permissions: HealthKitPermissions = {
       AppleHealthKit.Constants.Permissions.HeartRateVariability,
       AppleHealthKit.Constants.Permissions.RestingHeartRate,
     ],
-    write: [AppleHealthKit.Constants.Permissions.MindfulSession],
+    write: [],
   },
 };
 
@@ -25,7 +25,6 @@ function initHealthKit(): Promise<boolean> {
     return Promise.resolve(false);
   }
   if (initStatus === 'ready') return Promise.resolve(true);
-  if (initStatus === 'denied') return Promise.resolve(false);
   if (initPromise) return initPromise;
 
   const promise = new Promise<boolean>((resolve) => {

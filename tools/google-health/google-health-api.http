@@ -1,0 +1,39 @@
+### Sadhana Google Health API codelab workspace
+### Source: https://developers.google.com/health/codelabs/make-your-first-api-call
+###
+### Fill the variables below in a local uncommitted copy, or prefer:
+### npm run google-health -- auth-url
+### npm run google-health -- token -- --code <authorization-code>
+### npm run google-health -- list -- --dataType exercise
+
+### Do not commit real values in this tracked file.
+### Put real credentials in your local REST Client environment or use the CLI instead.
+@client_id =
+@secret =
+@redirect_uri = https://www.google.com
+@accessToken = paste-access-token-here
+@refreshToken = paste-refresh-token-here
+
+### Authorization URL
+### Open this in a browser, then copy the `code=` value from the redirect URL.
+https://accounts.google.com/o/oauth2/v2/auth?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&access_type=offline&prompt=consent&scope=https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly
+
+### Exchange authorization code for access + refresh tokens
+### Replace authorization-code before sending.
+# @name token
+POST https://oauth2.googleapis.com/token
+Content-Type: application/x-www-form-urlencoded
+
+code=authorization-code&client_id={{client_id}}&client_secret={{secret}}&redirect_uri={{redirect_uri}}&grant_type=authorization_code
+
+### Refresh access token
+# @name refresh
+POST https://oauth2.googleapis.com/token
+Content-Type: application/x-www-form-urlencoded
+
+refresh_token={{refreshToken}}&client_id={{client_id}}&client_secret={{secret}}&grant_type=refresh_token
+
+### List exercise data points
+GET https://health.googleapis.com/v4/users/me/dataTypes/exercise/dataPoints
+Authorization: Bearer {{accessToken}}
+Accept: application/json
