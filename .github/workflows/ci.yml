@@ -26,9 +26,24 @@ jobs:
       - name: Audit production dependencies
         run: npm audit --omit=dev
 
+      - name: Validate local StoreKit catalog
+        run: jq empty store-readiness/SadhanaProducts.storekit
+
+      - name: Generate native iOS project
+        run: npx expo prebuild --platform ios --clean
+
+      - name: Copy local StoreKit catalog into generated project
+        run: |
+          mkdir -p ios/StoreKit
+          cp store-readiness/SadhanaProducts.storekit ios/StoreKit/SadhanaProducts.storekit
+
       - name: Install CocoaPods
         working-directory: ios
         run: pod install
+
+      - name: List generated Xcode workspace
+        working-directory: ios
+        run: xcodebuild -list -workspace Sadhana.xcworkspace
 
       - name: Build iOS app
         working-directory: ios
