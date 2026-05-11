@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
 import { LogBox, Text, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
@@ -12,6 +12,7 @@ import { useDailyCycleStore } from './src/store/useDailyCycleStore';
 import { NightModeScreen } from './src/components/flows';
 import { fontAssets, fontFamilies } from './src/theme/fonts';
 import { refreshSadhanaEntitlement } from './src/billing';
+import { RootTabParamList } from './src/navigation/types';
 
 type TextDefaults = {
   allowFontScaling?: boolean;
@@ -21,6 +22,19 @@ type TextDefaults = {
 if (__DEV__) {
   LogBox.ignoreAllLogs(true);
 }
+
+const linking: LinkingOptions<RootTabParamList> = {
+  prefixes: ['sadhyo://', 'sadhana://'],
+  config: {
+    screens: {
+      Home: 'open/home',
+      Practice: 'practice',
+      Journal: 'flow/dream-capture',
+      Trends: 'open/trends',
+      Ladder: 'open/ladder',
+    },
+  },
+};
 
 function AppContent() {
   const [fontsLoaded, fontError] = useFonts(fontAssets);
@@ -76,7 +90,7 @@ function AppContent() {
 
   return (
     <ThemeProvider phase={phase} scheme={scheme === 'light' ? 'light' : 'dark'}>
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         {hasOnboarded && entitlement?.active ? (
           nightModeActiveAt ? (
             <NightModeScreen />

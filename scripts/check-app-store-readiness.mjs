@@ -85,8 +85,8 @@ const dependencies = {
   ...(packageJson.devDependencies ?? {}),
 };
 
-if (expo.name === 'Sadhyo') pass('Expo app name is Sadhyo');
-else fail('Expo app name is not Sadhyo');
+if (expo.name === 'Sadhana') pass('Expo app name is Sadhana');
+else fail('Expo app name is not Sadhana');
 
 if (expo.orientation === 'portrait') pass('Orientation is locked to portrait');
 else fail('Orientation is not locked to portrait');

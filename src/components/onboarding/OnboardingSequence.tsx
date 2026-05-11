@@ -119,7 +119,11 @@ export function OnboardingSequence() {
             every gate opens with Premium, and your daily state decides the practice.
           </Text>
 
-          <ScrollView contentContainerStyle={styles.phaseList} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.phaseScroll}
+            contentContainerStyle={styles.phaseList}
+            showsVerticalScrollIndicator={false}
+          >
             {phases.map((p) => (
               <TouchableOpacity
                 key={p}
@@ -147,18 +151,20 @@ export function OnboardingSequence() {
             ))}
           </ScrollView>
 
-          <Pressable
-            style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel={`Work on ${selectedInfo.obstacle}`}
-            testID="OnboardingPhaseContinueButton"
-            onPress={() => setStep('paywall')}
-          >
-            <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
-              Work on {selectedInfo.obstacle}
-            </Text>
-          </Pressable>
+          <View style={[styles.footer, { backgroundColor: tokens.bgPrimary }]}>
+            <Pressable
+              style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel={`Work on ${selectedInfo.obstacle}`}
+              testID="OnboardingPhaseContinueButton"
+              onPress={() => setStep('paywall')}
+            >
+              <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
+                Work on {selectedInfo.obstacle}
+              </Text>
+            </Pressable>
+          </View>
         </View>
       )}
 
@@ -226,7 +232,9 @@ const styles = StyleSheet.create({
   subtitle: { fontFamily: fontFamilies.text.regular, fontSize: 14, lineHeight: 22, marginBottom: 24 },
   primaryButton: { height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   primaryText: { fontFamily: fontFamilies.text.semibold, fontSize: 16, letterSpacing: 0.2 },
-  phaseList: { paddingBottom: 16, gap: 10 },
+  phaseScroll: { flex: 1 },
+  phaseList: { paddingBottom: 36, gap: 10 },
+  footer: { paddingTop: 16 },
   phaseRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, padding: 14, gap: 12 },
   phaseNumber: { fontFamily: fontFamilies.display.semibold, fontSize: 18, width: 24, textAlign: 'center' },
   phaseName: { fontFamily: fontFamilies.text.semibold, fontSize: 15 },

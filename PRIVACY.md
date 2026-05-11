@@ -1,16 +1,16 @@
-# Sadhyo Privacy Policy
+# Sadhana Privacy Policy
 
 Effective date: May 11, 2026
 
-Sadhyo is a private practice companion for reflection, meditation, and habit formation around seven inner-work themes: fear, guilt, shame, grief, lies, illusion, and attachment.
+Sadhana is a private practice companion for reflection, meditation, and habit formation around seven inner-work themes: fear, guilt, shame, grief, lies, illusion, and attachment.
 
 ## Information You Provide
 
-Sadhyo may store your selected practice themes, reflections, completion history, streaks, reminders, and optional subscription state.
+Sadhana may store your selected practice themes, reflections, completion history, streaks, reminders, and optional subscription state.
 
 ## Health Data
 
-If HealthKit features are enabled, Sadhyo asks for permission before reading health-related data. Health access is optional. Health data is used only to support your private practice experience and is not sold.
+If HealthKit features are enabled, Sadhana asks for permission before reading health-related data. Health access is optional. Health data is used only to support your private practice experience and is not sold.
 
 ## Local-First Practice
 

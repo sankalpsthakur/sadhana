@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "Sadhyo",
+    "name": "Sadhana",
     "slug": "sadhana",
+    "scheme": "sadhana",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,6 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
+      "appleTeamId": "ZBSZPCY34Y",
       "bundleIdentifier": "com.sankalpsthakur.sadhana",
       "entitlements": {
         "com.apple.developer.healthkit": true

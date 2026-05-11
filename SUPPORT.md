@@ -1,6 +1,6 @@
-# Sadhyo Support
+# Sadhana Support
 
-For help with Sadhyo, contact:
+For help with Sadhana, contact:
 
 Email: sankalphimself@gmail.com
 
@@ -11,4 +11,4 @@ Please include:
 - Whether the issue involves HealthKit permissions, reminders, subscriptions, or practice progress
 - Screenshots or screen recordings if helpful
 
-If you are in distress or need urgent support, contact local emergency services or a qualified professional. Sadhyo is not emergency care.
+If you are in distress or need urgent support, contact local emergency services or a qualified professional. Sadhana is not emergency care.

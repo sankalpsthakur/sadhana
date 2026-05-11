@@ -1,12 +1,12 @@
-# Sadhyo Terms of Use
+# Sadhana Terms of Use
 
 Effective date: May 11, 2026
 
-By using Sadhyo, you agree to these terms.
+By using Sadhana, you agree to these terms.
 
 ## Wellness Tool
 
-Sadhyo is a self-guided wellness, meditation, and reflection app. It is not medical advice, therapy, diagnosis, or emergency support.
+Sadhana is a self-guided wellness, meditation, and reflection app. It is not medical advice, therapy, diagnosis, or emergency support.
 
 ## Personal Responsibility
 
