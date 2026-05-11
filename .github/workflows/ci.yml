@@ -43,15 +43,29 @@ jobs:
 
       - name: List generated Xcode workspace
         working-directory: ios
-        run: xcodebuild -list -workspace Sadhana.xcworkspace
+        run: |
+          workspace="$(find . -maxdepth 1 -name '*.xcworkspace' -print -quit | sed 's#^\./##')"
+          if [ -z "$workspace" ]; then
+            echo "No generated .xcworkspace found in ios/"
+            ls -la
+            exit 66
+          fi
+          echo "Using workspace: $workspace"
+          xcodebuild -list -workspace "$workspace"
 
       - name: Build iOS app
         working-directory: ios
-        run: >
-          xcodebuild
-          -workspace Sadhana.xcworkspace
-          -scheme Sadhana
-          -configuration Debug
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
-          CODE_SIGNING_ALLOWED=NO
-          build
+        run: |
+          workspace="$(find . -maxdepth 1 -name '*.xcworkspace' -print -quit | sed 's#^\./##')"
+          if [ -z "$workspace" ]; then
+            echo "No generated .xcworkspace found in ios/"
+            ls -la
+            exit 66
+          fi
+          xcodebuild \
+            -workspace "$workspace" \
+            -scheme Sadhana \
+            -configuration Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
