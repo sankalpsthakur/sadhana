@@ -1,0 +1,70 @@
+{
+  "identifier": "SADHANA_LOCAL_STOREKIT",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {},
+  "subscriptionGroups": [
+    {
+      "id": "100001",
+      "localizations": [
+        {
+          "displayName": "Sadhana Premium",
+          "locale": "en_US"
+        }
+      ],
+      "name": "Sadhana Premium",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "14.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "200001",
+          "localizations": [
+            {
+              "description": "Monthly access to all seven practice gates, daily routines, and premium progress insights.",
+              "displayName": "Sadhana Premium Monthly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.sadhana.premium.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Sadhana Premium Monthly",
+          "subscriptionGroupID": "100001",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "59.99",
+          "familyShareable": false,
+          "groupNumber": 2,
+          "internalID": "200002",
+          "introductoryOffer": {
+            "displayPrice": "0",
+            "internalID": "300002",
+            "paymentMode": "free",
+            "subscriptionPeriod": "P2W"
+          },
+          "localizations": [
+            {
+              "description": "Annual access to Sadhana Premium with a 14-day introductory trial.",
+              "displayName": "Sadhana Premium Annual",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.sadhana.premium.annual",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Sadhana Premium Annual",
+          "subscriptionGroupID": "100001",
+          "type": "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 2,
+    "minor": 0
+  }
+}
