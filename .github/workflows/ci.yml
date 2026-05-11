@@ -64,7 +64,7 @@ jobs:
           fi
           xcodebuild \
             -workspace "$workspace" \
-            -scheme Sadhana \
+            -scheme "${workspace%.xcworkspace}" \
             -configuration Debug \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             CODE_SIGNING_ALLOWED=NO \
