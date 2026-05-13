@@ -69,3 +69,20 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      - name: Run iOS tests
+        working-directory: ios
+        run: |
+          workspace="$(find . -maxdepth 1 -name '*.xcworkspace' -print -quit | sed 's#^\./##')"
+          if [ -z "$workspace" ]; then
+            echo "No generated .xcworkspace found in ios/"
+            ls -la
+            exit 66
+          fi
+          xcodebuild \
+            test \
+            -workspace "$workspace" \
+            -scheme "${workspace%.xcworkspace}" \
+            -configuration Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            CODE_SIGNING_ALLOWED=NO
