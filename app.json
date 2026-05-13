@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Sadhana",
+    "name": "Inner Phases",
     "slug": "sadhana",
     "scheme": "sadhana",
     "version": "1.0.0",
@@ -20,7 +20,10 @@
         "com.apple.developer.healthkit": true
       },
       "infoPlist": {
-        "NSHealthShareUsageDescription": "Sadhana reads sleep duration, heart-rate variability, and resting heart rate from Health to personalize daily practice guidance on your device. Sadhana does not write to Health."
+        "ITSAppUsesNonExemptEncryption": true,
+        "SECURE_ENVELOPE_ALGORITHM": "AES-256-GCM",
+        "SECURE_ENVELOPE_VERSION": 1,
+        "NSHealthShareUsageDescription": "Inner Phases reads sleep duration, heart-rate variability, and resting heart rate from Health to personalize daily practice guidance on your device. Inner Phases does not write to Health."
       }
     },
     "android": {
@@ -37,7 +40,8 @@
     ],
     "plugins": [
       "expo-font",
-      "expo-iap"
+      "expo-iap",
+      "expo-secure-store"
     ]
   }
 }

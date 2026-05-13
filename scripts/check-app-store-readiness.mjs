@@ -8,7 +8,7 @@ const warnings = [];
 const passes = [];
 
 const SHARE_USAGE =
-  'Sadhana reads sleep duration, heart-rate variability, and resting heart rate from Health to personalize daily practice guidance on your device. Sadhana does not write to Health.';
+  'Inner Phases reads sleep duration, heart-rate variability, and resting heart rate from Health to personalize daily practice guidance on your device. Inner Phases does not write to Health.';
 
 function pass(message) {
   passes.push(message);
@@ -85,8 +85,8 @@ const dependencies = {
   ...(packageJson.devDependencies ?? {}),
 };
 
-if (expo.name === 'Sadhana') pass('Expo app name is Sadhana');
-else fail('Expo app name is not Sadhana');
+if (expo.name === 'Inner Phases') pass('Expo app name is Inner Phases');
+else fail('Expo app name is not Inner Phases');
 
 if (expo.orientation === 'portrait') pass('Orientation is locked to portrait');
 else fail('Orientation is not locked to portrait');
@@ -106,10 +106,57 @@ if (infoPlist.NSHealthShareUsageDescription === SHARE_USAGE) {
   fail('NSHealthShareUsageDescription does not match the approved local read-only copy');
 }
 
+if (infoPlist.ITSAppUsesNonExemptEncryption === true) {
+  pass('Export compliance declares non-exempt standard encryption in app.json');
+} else {
+  fail('ITSAppUsesNonExemptEncryption must be true because the app implements AES-256-GCM');
+}
+
+if (infoPlist.SECURE_ENVELOPE_ALGORITHM === 'AES-256-GCM' && infoPlist.SECURE_ENVELOPE_VERSION === 1) {
+  pass('Secure envelope metadata declares AES-256-GCM v1');
+} else {
+  fail('Secure envelope metadata is missing AES-256-GCM v1');
+}
+
 if ('NSHealthUpdateUsageDescription' in infoPlist) {
   fail('NSHealthUpdateUsageDescription is present, but Sadhana does not write Health data');
 } else {
   pass('Health update usage copy is absent, matching read-only HealthKit permissions');
+}
+
+if (dependencies['expo-secure-store']) {
+  pass('expo-secure-store is installed for native encrypted persistence');
+} else {
+  fail('expo-secure-store is missing; native app persistence is not using Expo secure storage');
+}
+
+if ((expo.plugins ?? []).some((plugin) => plugin === 'expo-secure-store' || plugin?.[0] === 'expo-secure-store')) {
+  pass('expo-secure-store config plugin is declared');
+} else {
+  fail('expo-secure-store config plugin is not declared in app.json');
+}
+
+const nativePersistStorage = readText('src/store/persistStorage.native.ts');
+const secureEnvelope = readText('src/crypto/secureEnvelope.ts');
+if (
+  dependencies['node-forge'] &&
+  secureEnvelope.includes("forge.cipher.createCipher('AES-GCM'") &&
+  secureEnvelope.includes("forge.cipher.createDecipher('AES-GCM'")
+) {
+  pass('App implements standard AES-GCM secure envelope crypto through node-forge');
+} else {
+  fail('AES-GCM secure envelope implementation is missing');
+}
+
+if (
+  nativePersistStorage.includes("from 'expo-secure-store'") &&
+  nativePersistStorage.includes('SecureStore.getItemAsync') &&
+  nativePersistStorage.includes('SecureStore.setItemAsync') &&
+  nativePersistStorage.includes('SecureStore.deleteItemAsync')
+) {
+  pass('Native persisted store uses Expo SecureStore get/set/delete APIs');
+} else {
+  fail('Native persisted store is not wired to Expo SecureStore get/set/delete APIs');
 }
 
 const provider = readText('src/health/provider.ios.ts');
@@ -151,6 +198,15 @@ if (existsSync(iosInfoPlistPath)) {
     fail('Generated iOS Info.plist still contains Health write usage copy');
   } else {
     pass('Generated iOS Info.plist has no Health write usage copy');
+  }
+  if (
+    generatedInfoPlist.includes('<key>ITSAppUsesNonExemptEncryption</key>') &&
+    generatedInfoPlist.includes('<true/>') &&
+    generatedInfoPlist.includes('AES-256-GCM')
+  ) {
+    pass('Generated iOS Info.plist declares non-exempt AES-256-GCM encryption');
+  } else {
+    fail('Generated iOS Info.plist is missing non-exempt AES-256-GCM encryption metadata');
   }
 } else {
   warn('Generated ios/Sadhana/Info.plist is absent; run Expo prebuild before native verification');
@@ -241,6 +297,64 @@ if (hasMonetizationSource) {
   pass('Subscription/paywall source references are present');
 } else {
   fail('No subscription/paywall/restore source path found; premium and 14-day trial claims are not implemented');
+}
+
+const billingProducts = readText('src/billing/products.ts');
+if (
+  billingProducts.includes("id: 'monthly-12-month'") &&
+  billingProducts.includes("productId: SADHANA_ANNUAL_PRODUCT_ID") &&
+  billingProducts.includes("billingPlanType: 'monthly'") &&
+  billingProducts.includes('commitmentMonths: 12')
+) {
+  pass('Monthly-with-12-month commitment plan is declared in billing config');
+} else {
+  fail('Monthly-with-12-month commitment plan is missing from billing config');
+}
+
+const onboardingSource = readText('src/components/onboarding/OnboardingSequence.tsx');
+if (
+  onboardingSource.includes("useState<SadhanaPaywallPlanId>(") &&
+  onboardingSource.includes("'monthly-12-month'") &&
+  onboardingSource.includes('loadSadhanaSubscriptionProducts') &&
+  onboardingSource.includes('getSadhanaPaywallPlanPresentation') &&
+  onboardingSource.includes('selectedPlan.productId') &&
+  onboardingSource.includes('selectedPlan.billingPlanType')
+) {
+  pass('Final onboarding paywall defaults to and purchases the selected plan');
+} else {
+  fail('Final onboarding paywall is not wired to the monthly commitment plan selector');
+}
+
+const storeKitConfig = readText('store-readiness/SadhanaProducts.storekit');
+if (
+  storeKitConfig.includes('com.sadhana.premium.annual') &&
+  storeKitConfig.includes('12-Month Plan') &&
+  storeKitConfig.includes('12-month Premium commitment')
+) {
+  pass('Local StoreKit config labels the annual product as the 12-month commitment plan');
+} else {
+  fail('Local StoreKit config does not label the annual 12-month commitment product');
+}
+
+const readinessReport = readText('store-readiness/APP_STORE_READINESS.md');
+if (
+  readinessReport.includes('Product.SubscriptionInfo.pricingTerms') &&
+  readinessReport.includes('Product.PurchaseOption.billingPlanType') &&
+  readinessReport.includes('SadhanaStoreKitCommitment')
+) {
+  pass('Readiness artifact documents the StoreKit native bridge');
+} else {
+  fail('Readiness artifact does not document the StoreKit native bridge');
+}
+
+const expoIapTypesPath = join(root, 'node_modules/expo-iap/build/types.d.ts');
+if (existsSync(expoIapTypesPath)) {
+  const expoIapTypes = readFileSync(expoIapTypesPath, 'utf8');
+  if (/billingPlanType|pricingTerms/.test(expoIapTypes)) {
+    warn('expo-iap types now mention billingPlanType/pricingTerms; recheck whether the native StoreKit 26.4 gap can be closed');
+  } else {
+    warn('expo-iap types do not expose billingPlanType/pricingTerms; Sadhana relies on the local native bridge for monthly commitment purchases');
+  }
 }
 
 console.log('App Store readiness check');

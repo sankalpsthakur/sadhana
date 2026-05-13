@@ -10,9 +10,11 @@ import {
   type Purchase,
   type RequestPurchaseResult,
 } from 'expo-iap';
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import {
+  SADHANA_ANNUAL_PRODUCT_ID,
   SADHANA_SUBSCRIPTION_PRODUCT_IDS,
+  type SadhanaBillingPlanType,
   type SadhanaSubscriptionProductId,
   isSadhanaSubscriptionProductId,
 } from './products';
@@ -28,6 +30,23 @@ export interface SadhanaEntitlementSnapshot {
   productId: SadhanaSubscriptionProductId | null;
   checkedAt: string;
 }
+
+type NativeCommitmentPurchaseResult = {
+  status: 'purchased' | 'pending' | 'cancelled' | 'unknown';
+  productId: string;
+  transactionId?: string;
+};
+
+type NativeStoreKitCommitmentModule = {
+  purchase(
+    productId: string,
+    billingPlanType: 'monthly'
+  ): Promise<NativeCommitmentPurchaseResult>;
+};
+
+const nativeCommitmentStore = NativeModules.SadhanaStoreKitCommitment as
+  | NativeStoreKitCommitmentModule
+  | undefined;
 
 function supportsNativeStore() {
   return Platform.OS === 'ios' || Platform.OS === 'android';
@@ -69,9 +88,24 @@ export async function loadSadhanaSubscriptionProducts() {
 }
 
 export async function purchaseSadhanaSubscription(
-  productId: SadhanaSubscriptionProductId
-): Promise<RequestPurchaseResult> {
+  productId: SadhanaSubscriptionProductId,
+  billingPlanType: SadhanaBillingPlanType = 'upFront'
+): Promise<RequestPurchaseResult | NativeCommitmentPurchaseResult> {
   await ensureStoreConnection();
+
+  if (
+    Platform.OS === 'ios' &&
+    productId === SADHANA_ANNUAL_PRODUCT_ID &&
+    billingPlanType === 'monthly'
+  ) {
+    if (!nativeCommitmentStore) {
+      throw new Error(
+        'Monthly billing for the 12-month plan requires the native StoreKit commitment bridge.'
+      );
+    }
+
+    return nativeCommitmentStore.purchase(productId, 'monthly');
+  }
 
   return requestPurchase({
     type: 'subs',
