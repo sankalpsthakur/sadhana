@@ -80,11 +80,19 @@ export async function loadSadhanaSubscriptionProducts() {
     type: 'subs',
   });
 
-  return (products ?? []).filter((product): product is ProductSubscription =>
+  const filteredProducts = (products ?? []).filter((product): product is ProductSubscription =>
     SADHANA_SUBSCRIPTION_PRODUCT_IDS.includes(
       product.id as SadhanaSubscriptionProductId
     )
   );
+
+  if (filteredProducts.length === 0) {
+    throw new Error(
+      `App Store Connect returned no Inner Phases subscription products for: ${SADHANA_SUBSCRIPTION_PRODUCT_IDS.join(', ')}. Verify these exact product IDs exist for this app in App Store Connect.`
+    );
+  }
+
+  return filteredProducts;
 }
 
 export async function purchaseSadhanaSubscription(

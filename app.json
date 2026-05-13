@@ -23,6 +23,11 @@
         "ITSAppUsesNonExemptEncryption": true,
         "SECURE_ENVELOPE_ALGORITHM": "AES-256-GCM",
         "SECURE_ENVELOPE_VERSION": 1,
+        "AppStoreProductIDSource": "App Store Connect canonical product identifiers for TestFlight StoreKit loading",
+        "AppStoreProductIDs": [
+          "com.sadhana.premium.annual",
+          "com.sadhana.premium.monthly"
+        ],
         "NSHealthShareUsageDescription": "Inner Phases reads sleep duration, heart-rate variability, and resting heart rate from Health to personalize daily practice guidance on your device. Inner Phases does not write to Health."
       }
     },
