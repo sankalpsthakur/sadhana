@@ -17,15 +17,6 @@ final class SadhanaStoreKitCommitment: NSObject {
   ) {
     Task {
       do {
-        guard #available(iOS 26.4, *) else {
-          reject(
-            "sadhana_storekit_unsupported_os",
-            "Monthly billing for a 12-month commitment requires iOS 26.4 or later.",
-            nil
-          )
-          return
-        }
-
         let products = try await Product.products(for: [productID])
         guard let product = products.first else {
           reject(
@@ -36,8 +27,21 @@ final class SadhanaStoreKitCommitment: NSObject {
           return
         }
 
+        #if compiler(>=6.2)
+        guard #available(iOS 26.4, *) else {
+          reject(
+            "sadhana_storekit_unsupported_os",
+            "Monthly billing for a 12-month commitment requires iOS 26.4 or later.",
+            nil
+          )
+          return
+        }
+
         let options = try purchaseOptions(for: product, billingPlanType: billingPlanType)
         let result = try await product.purchase(options: options)
+        #else
+        let result = try await product.purchase()
+        #endif
 
         switch result {
         case .success(let verification):
@@ -65,6 +69,7 @@ final class SadhanaStoreKitCommitment: NSObject {
     }
   }
 
+  #if compiler(>=6.2)
   @available(iOS 26.4, *)
   private func purchaseOptions(
     for product: Product,
@@ -80,6 +85,7 @@ final class SadhanaStoreKitCommitment: NSObject {
 
     return [.billingPlanType(.monthly)]
   }
+  #endif
 
   private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
     switch result {
@@ -102,6 +108,7 @@ private enum StoreKitCommitmentError: LocalizedError {
   }
 }
 
+#if compiler(>=6.2)
 @available(iOS 26.4, *)
 private extension Product {
   var hasTwelveMonthMonthlyPricingTerms: Bool {
@@ -115,6 +122,7 @@ private extension Product {
     }
   }
 }
+#endif
 
 @available(iOS 26.4, *)
 private extension Product.SubscriptionPeriod {
