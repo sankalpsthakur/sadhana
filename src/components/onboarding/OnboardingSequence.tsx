@@ -52,6 +52,13 @@ export function OnboardingSequence() {
     completeOnboarding();
   };
 
+  // __DEV__-only auto-jump to the paywall step for App Store screenshot capture.
+  useEffect(() => {
+    if (!__DEV__) return;
+    if (process.env.EXPO_PUBLIC_SCREENSHOT_PAYWALL !== '1') return;
+    setStep('paywall');
+  }, []);
+
   useEffect(() => {
     if (step !== 'paywall') return;
 

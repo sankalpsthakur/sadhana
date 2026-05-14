@@ -4,27 +4,47 @@ Device: iPhone 16 Pro Max simulator, iOS 18.6.
 
 | File | Panel | Status |
 |------|-------|--------|
-| `01-onboarding.png` | Onboarding question screen ("What would change…") | Captured |
-| `02-phase-1-home.png` | Home in Phase 1 | **Outstanding** — see blocker note below |
-| `03-phase-4-mid-journey.png` | Home / Practice in Phase 4 mid-journey | **Outstanding** |
-| `04-healthkit-permission.png` | Apple Health permission sheet | **Outstanding** |
-| `05-stability-lock.png` | Safety lock screen (kavacha / serpent) | **Outstanding** |
-| `06-paywall.png` | Onboarding paywall step (`monthly-12-month` + annual) | **Outstanding** |
+| `01-onboarding.png` | Onboarding question screen ("What would change…") | Captured (wave 3) |
+| `02-phase-1.png` | Home in Phase 1 (Fear / Muladhara) | Captured (wave 4) |
+| `03-phase-4.png` | Home in Phase 4 (Grief / Anahata), stability 82 | Captured (wave 4) |
+| `04-healthkit-permission.png` | Connect Apple Health card on Home | Captured (wave 4) — see note |
+| `05-stability-lock.png` | Phase 5 with serpent lock active, stability 45 | Captured (wave 4) |
+| `06-paywall.png` | Onboarding paywall step (12-month commitment + annual) | Captured (wave 4) |
 
-## Blocker (documented in `progress/wave3-sadhana.md`)
+## How the wave-4 captures were produced
 
-The remaining five panels require navigating past onboarding, which requires either:
+Wave 3 was blocked by `App.tsx`'s `entitlement?.active` gate. Wave 4 adds a
+`__DEV__`-only `SCREENSHOT_MODE` bypass that:
 
-1. An actual sandbox StoreKit purchase to satisfy `entitlement?.active` in `App.tsx`, OR
-2. A debug-only bypass flag (not currently present in the codebase), OR
-3. Manual taps via the Simulator GUI with accessibility permissions granted to the automation tool.
+- Reads `EXPO_PUBLIC_SCREENSHOT_MODE=1` at bundle time
+- Skips `refreshSadhanaEntitlement()`
+- Synthesises a fake active entitlement so the entitled views render
+- Accepts state hints: `EXPO_PUBLIC_SCREENSHOT_PHASE`,
+  `EXPO_PUBLIC_SCREENSHOT_STABILITY`, `EXPO_PUBLIC_SCREENSHOT_LOCK_SERPENT`,
+  `EXPO_PUBLIC_SCREENSHOT_PAYWALL`
 
-Attempted: writing pre-seeded persisted Zustand state directly to `Library/Application Support/com.sankalpsthakur.sadhana/RCTAsyncLocalStorage_V1/manifest.json` with `hasOnboarded:true` and `entitlement.active:true`. The app reads this state at launch (Zustand `persist` middleware), but `App.tsx:62` calls `refreshSadhanaEntitlement()` immediately and StoreKit-in-simulator returns no purchases, so `clearEntitlement()` flips the state back to onboarding before render.
+The bypass is gated on `__DEV__` so it cannot ship to production. See
+`App.tsx` and `src/components/onboarding/OnboardingSequence.tsx` for the
+implementation.
 
-The simulator-tap automation (`mcp__bridge4simulator`) racing with Apple's Simulator app — which auto-boots other simulators (iPhone 16 Pro, iPhone 17 Pro) — broke the targeting; tap commands routinely landed on the wrong simulator's foreground app.
+## Known gap: panel 04
 
-## Recommended path forward (4–6 hours)
+`04-healthkit-permission.png` currently shows the in-app "Connect Apple Health"
+card, **not** the native HKHealthStore permission sheet. The auto-trigger path
+(`EXPO_PUBLIC_SCREENSHOT_REQUEST_HEALTH=1`) is wired but the dialog does not
+appear because the existing debug build was signed without the
+`com.apple.developer.healthkit` runtime entitlement (Info.plist has
+`NSHealthShareUsageDescription` but the binary entitlements payload is empty).
+The HKHealthStore framework reports `isHealthDataAvailable=true` but
+`initHealthKit` returns silently without surfacing the sheet.
 
-- Add a `__DEV__`-only `bypassEntitlement` flag to `App.tsx` for screenshot capture, or
-- Use a real sandbox tester on a physical device, or
-- Use `fastlane snapshot` / `xcodebuild test` with XCUITest for deterministic UI automation.
+To capture the OS sheet:
+
+1. `cd ios && pod install`
+2. Rebuild with `xcodebuild -workspace Sadhana.xcworkspace -scheme Sadhana
+   -configuration Debug -destination "id=<SIM>" build` — make sure
+   `CODE_SIGN_ENTITLEMENTS = Sadhana/Sadhana.entitlements` is picked up
+3. Install the rebuilt `.app` on the simulator
+4. Launch with `EXPO_PUBLIC_SCREENSHOT_MODE=1 EXPO_PUBLIC_SCREENSHOT_REQUEST_HEALTH=1`
+5. The bypass fires `requestHealthPermissions()` 1.5 s after the entitled view
+   mounts; screenshot the sheet at ~3 s after launch.
