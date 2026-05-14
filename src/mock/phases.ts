@@ -16,7 +16,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Fear',
     chakra: 'Muladhara',
     chakraLocation: 'Pelvic floor',
-    description: 'Defeat fear by training the body to recognize safety again.',
+    description: 'Meet fear by training the body to recognize safety again.',
     promise: 'Build steadiness, courage, and the ability to stay present under pressure.',
   },
   2: {
@@ -25,7 +25,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Guilt',
     chakra: 'Svadhisthana',
     chakraLocation: 'Sacrum',
-    description: 'Defeat guilt by moving stuck emotion without drowning in it.',
+    description: 'Soften guilt by letting stuck emotion move without drowning in it.',
     promise: 'Recover clean desire, softness, creativity, and emotional flow.',
   },
   3: {
@@ -34,7 +34,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Shame',
     chakra: 'Manipura',
     chakraLocation: 'Solar plexus',
-    description: 'Defeat shame by turning self-attack into disciplined agency.',
+    description: 'Transmute shame by turning self-attack into disciplined agency.',
     promise: 'Reclaim will, action, and the right to take up space.',
   },
   4: {
@@ -43,7 +43,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Grief',
     chakra: 'Anahata',
     chakraLocation: 'Heart',
-    description: 'Defeat grief by letting loss move through without closing the heart.',
+    description: 'Let grief move through without closing the heart.',
     promise: 'Practice coherence, forgiveness, tenderness, and repair.',
   },
   5: {
@@ -52,7 +52,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Lies',
     chakra: 'Vishuddha',
     chakraLocation: 'Throat',
-    description: 'Defeat lies by ending the leak into performance and false speech.',
+    description: 'Release the leak into performance and false speech.',
     promise: 'Train truthful expression, clean boundaries, and signal over noise.',
   },
   6: {
@@ -61,7 +61,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Illusion',
     chakra: 'Ajna',
     chakraLocation: 'Third eye',
-    description: 'Defeat illusion by separating perception from projection.',
+    description: 'See through illusion by separating perception from projection.',
     promise: 'Strengthen witness, insight, discernment, and pattern clarity.',
   },
   7: {
@@ -70,7 +70,7 @@ export const phaseInfo: Record<Phase, PhaseInfo> = {
     obstacle: 'Attachment',
     chakra: 'Sahasrara',
     chakraLocation: 'Crown',
-    description: 'Defeat attachment by releasing grasping without abandoning devotion.',
+    description: 'Surrender grasping without abandoning devotion.',
     promise: 'Integrate service, surrender, spaciousness, and clean commitment.',
   },
 };

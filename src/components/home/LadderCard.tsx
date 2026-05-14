@@ -39,7 +39,7 @@ export function LadderCard() {
       </Text>
 
       <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Ladder')}>
-        <Text style={[styles.linkText, { color: tokens.accent }]}>Choose another gate</Text>
+        <Text style={[styles.linkText, { color: tokens.accent }]}>View your Path</Text>
       </TouchableOpacity>
     </View>
   );

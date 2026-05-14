@@ -292,10 +292,10 @@ export function SealFlow({ visible, onComplete }: SealFlowProps) {
             <View style={[styles.divider, { backgroundColor: tokens.border }]} />
 
             <Text style={[styles.completeSubtitle, { color: tokens.textSecondary }]}>
-              Sleep well.
+              The day is held. Rest now.
             </Text>
 
-            <Text style={styles.moonEmoji}>🌙</Text>
+            <Text style={[styles.crescentGlyph, { color: tokens.accent }]}>)</Text>
 
             {dreamIntention && dreamIntention.type !== 'none' && (
               <View style={[styles.intentionBox, { backgroundColor: tokens.bgSecondary }]}>
@@ -446,9 +446,12 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: 8,
   },
-  moonEmoji: {
+  crescentGlyph: {
     fontSize: 64,
+    fontWeight: '100',
     marginVertical: 48,
+    transform: [{ rotate: '-15deg' }],
+    opacity: 0.6,
   },
   intentionBox: {
     padding: 16,

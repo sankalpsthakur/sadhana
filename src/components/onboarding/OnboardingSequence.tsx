@@ -141,7 +141,7 @@ export function OnboardingSequence() {
           <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>
             Inner Phases is a paid practice system for working with seven inner gates:
             fear, guilt, shame, grief, lies, illusion, and attachment. Pick the
-            gate you want to defeat first.
+            gate that is alive in you.
           </Text>
           <Pressable
             style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
@@ -201,12 +201,12 @@ export function OnboardingSequence() {
               style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
               hitSlop={12}
               accessibilityRole="button"
-              accessibilityLabel={`Work on ${selectedInfo.obstacle}`}
+              accessibilityLabel={`Sit with ${selectedInfo.obstacle}`}
               testID="OnboardingPhaseContinueButton"
               onPress={() => setStep('paywall')}
             >
               <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
-                Work on {selectedInfo.obstacle}
+                Sit with {selectedInfo.obstacle}
               </Text>
             </Pressable>
           </View>
@@ -230,7 +230,7 @@ export function OnboardingSequence() {
               {SADHANA_PAYWALL_COPY.title}
             </Text>
             <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>
-              All seven gates unlocked. No forced order. Daily practices adapt to your state.
+              All seven gates are open. No forced order. Daily practices adapt to your state.
             </Text>
             <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>
               {SADHANA_PAYWALL_COPY.trial}

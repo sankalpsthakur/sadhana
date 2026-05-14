@@ -10,28 +10,28 @@ interface SafetyBannerProps {
 
 const lockMessages: Record<LockType, { text: string; expanded: string }> = {
   kavacha: {
-    text: 'Depth locked. Ground first.',
-    expanded: 'Your nervous system is showing signs of overwhelm. All intensity practices are locked until you return to Green on the Mood Meter.',
+    text: 'The body is asking for ground. Depth will open when it has settled.',
+    expanded: 'The nervous system is showing signs of overwhelm. Intensity practices rest until Mood returns to Green.',
   },
   nightmare: {
-    text: 'Dream work paused for nervous system safety.',
-    expanded: 'Two consecutive nights of terror detected. Mirror mode and dream practices are locked for 3 stable nights.',
+    text: 'Dream work is resting. The body is asking for sleep first.',
+    expanded: 'Two consecutive nights of terror were noted. Mirror mode and dream practices rest for three stable nights.',
   },
   neti: {
-    text: 'Neti paused. Return to embodiment.',
-    expanded: 'A dissociation flag was detected. Witness practices are in cooldown for 72 hours.',
+    text: 'Neti is resting. The body is asking to be felt again.',
+    expanded: 'A dissociation signal was noted. Witness practices rest for 72 hours while embodiment returns.',
   },
   serpent: {
-    text: 'Voltage too high. Cooling in progress.',
-    expanded: 'Kill-switch was triggered. High-voltage practices are locked for 7 days while your system stabilizes.',
+    text: 'Voltage is high. The body is asking to cool.',
+    expanded: 'The kill-switch was used. High-voltage practices rest for 7 days while the system stabilizes.',
   },
   union: {
-    text: 'Dyad paused. Partner stabilizing.',
-    expanded: 'Your partner\'s stability has dropped. Dyad practices are paused until they return to baseline.',
+    text: 'Dyad is resting. The partner is stabilizing.',
+    expanded: 'Your partner\'s stability has dropped. Dyad practices rest until they return to baseline.',
   },
   sleepEmergency: {
-    text: 'Sleep integrity compromised. Seal mode active.',
-    expanded: 'Two-night crash pattern detected. Only grounding and seal practices are available until sleep is restored.',
+    text: 'Sleep is uneven. The body is asking for restoration.',
+    expanded: 'A two-night crash pattern was noted. Only grounding and seal practices remain until sleep is restored.',
   },
 };
 
@@ -57,7 +57,6 @@ export function SafetyBanner({ lockType }: SafetyBannerProps) {
       ]}
     >
       <View style={styles.header}>
-        <Text style={styles.icon}>🛡️</Text>
         <Text style={[styles.text, { color: tokens.textPrimary }]}>{message.text}</Text>
       </View>
 

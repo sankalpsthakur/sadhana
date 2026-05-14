@@ -31,9 +31,9 @@ export function PracticeCard({ practice, status, cooldownLabel, currentPhase, on
         const windowLabel = windows.length === 1 ? timeWindowLabels[windows[0]] : 'Later';
         return { label: windowLabel, color: tokens.textSecondary };
       case 'locked-stability':
-        return { label: `Stability ${practice.minStability}+`, color: tokens.textSecondary };
+        return { label: `Asks Sthiti ${practice.minStability}+`, color: tokens.textSecondary };
       case 'cooldown':
-        return { label: `Cooldown ${cooldownLabel ?? ''}`.trim(), color: tokens.textSecondary };
+        return { label: `Resting ${cooldownLabel ?? ''}`.trim(), color: tokens.textSecondary };
       case 'completed':
         return { label: 'Done', color: quadrants.Green };
       default:
@@ -74,7 +74,7 @@ export function PracticeCard({ practice, status, cooldownLabel, currentPhase, on
             {practice.name}
           </Text>
           {isLocked && (
-            <Text style={[styles.lockIcon, { color: tokens.textSecondary }]}>🔒</Text>
+            <Text style={[styles.lockIcon, { color: tokens.textSecondary }]}>·</Text>
           )}
           {isCompleted && (
             <Text style={[styles.checkIcon, { color: quadrants.Green }]}>✓</Text>

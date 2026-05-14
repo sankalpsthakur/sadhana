@@ -15,7 +15,7 @@ export function PatternCard() {
   // Mock pattern insight based on state
   const getPatternText = (): string => {
     if (isLocked) {
-      return 'Pattern insights unlock when stability reaches 60+';
+      return 'Patterns settle into view at Sthiti 60+. The body is still learning to be still.';
     }
     if (!moodQuadrant) {
       return 'Log your mood to reveal patterns';
@@ -28,7 +28,7 @@ export function PatternCard() {
       case 'Green':
         return 'Green has been your baseline for 5 of the last 7 days. Stability growing.';
       case 'Yellow':
-        return 'Yellow entries are up 20% this week. Channel the fire mindfully.';
+        return 'Yellow is rising. The fire wants somewhere to go.';
       default:
         return 'Keep logging to reveal your patterns.';
     }
@@ -38,7 +38,6 @@ export function PatternCard() {
     <View style={[styles.container, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: tokens.textPrimary }]}>Today's Pattern</Text>
-        {isLocked && <Text style={styles.lockIcon}>🔒</Text>}
       </View>
 
       <Text style={[styles.insight, { color: tokens.textSecondary }]}>
@@ -47,7 +46,7 @@ export function PatternCard() {
 
       <TouchableOpacity style={styles.link} disabled={isLocked}>
         <Text style={[styles.linkText, { color: isLocked ? tokens.textSecondary : tokens.accent }]}>
-          {isLocked ? 'Unlock Trends to see more' : 'View full trends →'}
+          {isLocked ? 'Threshold ahead. Continue practice.' : 'View full trends →'}
         </Text>
       </TouchableOpacity>
     </View>

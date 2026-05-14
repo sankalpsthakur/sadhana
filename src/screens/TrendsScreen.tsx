@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/useTheme';
 import { useAppStore } from '../store/useAppStore';
@@ -57,6 +57,21 @@ export function TrendsScreen() {
 
   const checkins = useDailyCycleStore((s) => s.checkins);
   const practicesCompleted = useDailyCycleStore((s) => s.practicesCompleted);
+  const [contribOpen, setContribOpen] = useState(false);
+
+  // Days since the most recent practice (used for soft re-entry copy).
+  const daysSinceLast = useMemo(() => {
+    if (!practicesCompleted || practicesCompleted.length === 0) return null;
+    const latest = practicesCompleted.reduce<Date | null>((acc, p) => {
+      const t = p.timestamp instanceof Date ? p.timestamp : new Date(p.timestamp);
+      if (!acc || t > acc) return t;
+      return acc;
+    }, null);
+    if (!latest) return null;
+    return Math.floor((Date.now() - latest.getTime()) / (1000 * 60 * 60 * 24));
+  }, [practicesCompleted]);
+
+  const showReentry = daysSinceLast !== null && daysSinceLast > 7;
 
   // Get today's day of week for pattern card
   const dayOfWeek = new Date().getDay();
@@ -78,19 +93,37 @@ export function TrendsScreen() {
 
   // Locked state
   if (isLocked) {
+    const contributions = [
+      { name: 'Sleep', note: 'Hours and consistency.' },
+      { name: 'HRV trend', note: 'Where the autonomic system is settling.' },
+      { name: 'RHR', note: 'Resting heart rate over the week.' },
+      { name: 'Days observed', note: 'How long the practice has been held.' },
+      { name: 'Recent variability', note: 'Return-to-Green latency after Red or Yellow.' },
+    ];
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: tokens.bgPrimary }]}>
-        <View style={styles.lockedContainer}>
-          <Text style={[styles.lockIcon, { color: tokens.textSecondary }]}>🔒</Text>
+        <ScrollView contentContainerStyle={styles.lockedScroll} showsVerticalScrollIndicator={false}>
+          {showReentry && (
+            <View style={[styles.reentryCard, { backgroundColor: tokens.bgSecondary, borderColor: tokens.accent }]}>
+              <Text style={[styles.reentryTitle, { color: tokens.textPrimary }]}>
+                Welcome back. Begin small.
+              </Text>
+              <Text style={[styles.reentryBody, { color: tokens.textSecondary }]}>
+                You have been away {daysSinceLast} days. The body remembers. Today: one breath, on the cushion. That is the whole practice. Sthiti will rebuild as the body returns.
+              </Text>
+            </View>
+          )}
+
           <Text style={[styles.lockedTitle, { color: tokens.textPrimary }]}>
-            Trends Locked
+            Sthiti is not yet established.
           </Text>
           <Text style={[styles.lockedSubtitle, { color: tokens.textSecondary }]}>
-            Stability must reach 60+ for 7 days to unlock pattern insights
+            The body is still arriving. Continue. Patterns settle into view at Sthiti 60+, held for 7 days.
           </Text>
+
           <View style={[styles.stabilityCard, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}>
             <Text style={[styles.stabilityLabel, { color: tokens.textSecondary }]}>
-              Current Stability
+              Current Sthiti
             </Text>
             <Text style={[styles.stabilityValue, { color: tokens.textPrimary }]}>
               {stability}
@@ -107,10 +140,35 @@ export function TrendsScreen() {
               />
             </View>
             <Text style={[styles.progressLabel, { color: tokens.textSecondary }]}>
-              {stability >= 60 ? 'Maintain for 7 days' : `${60 - stability} points to unlock`}
+              {stability >= 60 ? 'Hold for 7 days. The view will arrive.' : `${60 - stability} to threshold`}
             </Text>
           </View>
-        </View>
+
+          <TouchableOpacity
+            style={[styles.contribToggle, { borderColor: tokens.border }]}
+            onPress={() => setContribOpen((v) => !v)}
+            accessibilityRole="button"
+            accessibilityLabel="What Sthiti listens to"
+          >
+            <Text style={[styles.contribToggleText, { color: tokens.accent }]}>
+              {contribOpen ? 'Hide what Sthiti listens to' : 'What Sthiti listens to'}
+            </Text>
+          </TouchableOpacity>
+
+          {contribOpen && (
+            <View style={[styles.contribCard, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}>
+              {contributions.map((c) => (
+                <View key={c.name} style={styles.contribRow}>
+                  <Text style={[styles.contribName, { color: tokens.textPrimary }]}>{c.name}</Text>
+                  <Text style={[styles.contribNote, { color: tokens.textSecondary }]}>{c.note}</Text>
+                </View>
+              ))}
+              <Text style={[styles.contribFooter, { color: tokens.textSecondary }]}>
+                Sthiti is a sum of what the body is reporting. Nothing is hidden.
+              </Text>
+            </View>
+          )}
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -451,5 +509,63 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.text.regular,
     fontSize: 11,
     marginTop: 8,
+  },
+  lockedScroll: {
+    padding: 24,
+    paddingTop: 40,
+  },
+  reentryCard: {
+    padding: 18,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 24,
+  },
+  reentryTitle: {
+    fontFamily: fontFamilies.display.semibold,
+    fontSize: 18,
+    lineHeight: 24,
+    marginBottom: 6,
+  },
+  reentryBody: {
+    fontFamily: fontFamilies.text.regular,
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  contribToggle: {
+    marginTop: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  contribToggleText: {
+    fontFamily: fontFamilies.text.medium,
+    fontSize: 12,
+  },
+  contribCard: {
+    marginTop: 8,
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  contribRow: {
+    marginBottom: 10,
+  },
+  contribName: {
+    fontFamily: fontFamilies.text.semibold,
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  contribNote: {
+    fontFamily: fontFamilies.text.regular,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  contribFooter: {
+    fontFamily: fontFamilies.text.regular,
+    fontSize: 11,
+    fontStyle: 'italic',
+    marginTop: 6,
   },
 });

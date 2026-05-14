@@ -49,12 +49,12 @@ export function StateStrip() {
             <Text style={[styles.tileLabel, { color: tokens.textSecondary }]}>Sleep</Text>
           </TouchableOpacity>
 
-          {/* Locks */}
+          {/* Pauses */}
           <TouchableOpacity style={styles.tile}>
             <Text style={[styles.tileValue, { color: lockCount > 0 ? quadrants.Red : tokens.textPrimary }]}>
-              🔒 {lockCount}
+              {lockCount}
             </Text>
-            <Text style={[styles.tileLabel, { color: tokens.textSecondary }]}>Locks</Text>
+            <Text style={[styles.tileLabel, { color: tokens.textSecondary }]}>Pauses</Text>
           </TouchableOpacity>
         </View>
       </View>

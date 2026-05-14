@@ -19,11 +19,11 @@ export function ToolCard({ tool, onPress }: ToolCardProps) {
   const getStateIndicator = () => {
     switch (tool.state) {
       case 'LockedPhase':
-        return '🔒';
+        return 'Threshold';
       case 'LockedState':
-        return '⚠️';
+        return 'Resting';
       case 'Cooldown':
-        return '⏳';
+        return 'Resting';
       default:
         return null;
     }
@@ -85,8 +85,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stateIcon: {
-    fontSize: 14,
+    fontFamily: fontFamilies.text.medium,
+    fontSize: 10,
     marginLeft: 4,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
   },
   duration: {
     fontFamily: fontFamilies.text.regular,
