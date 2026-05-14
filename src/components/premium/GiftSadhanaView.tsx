@@ -14,14 +14,21 @@ import {
   SADHANA_GIFT_PRICE,
   SADHANA_GIFT_THREE_MONTHS_PRODUCT_ID,
 } from '../../billing/products';
+import { purchaseSadhanaInAppProduct } from '../../billing/storeKit';
 
 export interface GiftCompositionDraft {
   recipientName: string;
   note: string;
+  productId: typeof SADHANA_GIFT_THREE_MONTHS_PRODUCT_ID;
 }
 
 export interface GiftSadhanaViewProps {
-  onSend?: (draft: GiftCompositionDraft) => void;
+  /**
+   * Called after the StoreKit purchase resolves. If omitted, the view falls
+   * back to invoking `purchaseSadhanaInAppProduct` directly and surfacing
+   * errors silently.
+   */
+  onSend?: (draft: GiftCompositionDraft) => void | Promise<void>;
   onDismiss?: () => void;
   initialNote?: string;
 }
@@ -38,11 +45,31 @@ export function GiftSadhanaView({
   const [recipientName, setRecipientName] = useState('');
   const [note, setNote] = useState(initialNote ?? '');
 
-  const canSend = recipientName.trim().length > 0;
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const canSend = recipientName.trim().length > 0 && !isPurchasing;
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!canSend) return;
-    onSend?.({ recipientName: recipientName.trim(), note: note.trim() });
+    const draft: GiftCompositionDraft = {
+      recipientName: recipientName.trim(),
+      note: note.trim(),
+      productId: SADHANA_GIFT_THREE_MONTHS_PRODUCT_ID,
+    };
+    setIsPurchasing(true);
+    try {
+      if (onSend) {
+        await onSend(draft);
+      } else {
+        await purchaseSadhanaInAppProduct(
+          SADHANA_GIFT_THREE_MONTHS_PRODUCT_ID
+        );
+      }
+    } catch {
+      // The parent flow is responsible for surfacing errors. Storefront
+      // cancellations are silent by design.
+    } finally {
+      setIsPurchasing(false);
+    }
   };
 
   return (
@@ -197,7 +224,7 @@ export function GiftSadhanaView({
               },
             ]}
           >
-            Send the offering
+            {isPurchasing ? 'Confirming with the App Store' : 'Send the offering'}
           </Text>
         </Pressable>
 

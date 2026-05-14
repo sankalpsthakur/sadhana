@@ -32,7 +32,7 @@ export const SAMPLE_RETREAT_PARTNERS: readonly RetreatPartner[] = [
     dates: '10-day courses, monthly cohorts',
     priceRange: 'Dāna basis (gift offering)',
     retreatType: 'silent',
-    partnerUrl: 'https://example.org/partners/vipassana-karnataka',
+    partnerUrl: 'https://partners.sadhana.app/sample/vipassana-karnataka',
     description:
       'Ten days of noble silence in the Goenka tradition. Bring only what is needed.',
   },
@@ -43,7 +43,7 @@ export const SAMPLE_RETREAT_PARTNERS: readonly RetreatPartner[] = [
     dates: 'Weekend and week-long retreats year-round',
     priceRange: '$420–$2,400 USD',
     retreatType: 'guided',
-    partnerUrl: 'https://example.org/partners/spirit-rock',
+    partnerUrl: 'https://partners.sadhana.app/sample/spirit-rock',
     description:
       'Insight meditation in the West Marin hills. Guided sittings, dharma talks, walking practice.',
   },
@@ -54,7 +54,7 @@ export const SAMPLE_RETREAT_PARTNERS: readonly RetreatPartner[] = [
     dates: 'Family retreats summer; weekly programs spring–autumn',
     priceRange: '€340–€980 EUR',
     retreatType: 'family',
-    partnerUrl: 'https://example.org/partners/plum-village',
+    partnerUrl: 'https://partners.sadhana.app/sample/plum-village',
     description:
       'The community founded by Thich Nhat Hanh. Practice for adults and children together.',
   },
@@ -137,7 +137,9 @@ export function RetreatPartnersView({
         >
           These are partner retreat centers we have walked with. Each holds
           space in its own form. Inquire directly; we receive a small share
-          when a stay is arranged, which we put back toward the work.
+          when a stay is arranged, which we put back toward the work. The
+          three listed here are placeholders until the first partners are
+          named.
         </Text>
 
         <View style={[styles.partnerList, { marginTop: spacing.lg }]}>

@@ -105,17 +105,29 @@
           "referenceName": "Inner Phases Premium 12-Month Plan",
           "subscriptionGroupID": "100001",
           "type": "RecurringSubscription"
-        },
+        }
+      ]
+    },
+    {
+      "id": "100003",
+      "localizations": [
+        {
+          "displayName": "Sadhana Couple",
+          "locale": "en_US"
+        }
+      ],
+      "name": "Sadhana Couple",
+      "subscriptions": [
         {
           "adHocOffers": [],
           "codeOffers": [],
           "displayPrice": "129.00",
           "familyShareable": true,
-          "groupNumber": 3,
+          "groupNumber": 1,
           "internalID": "200003",
           "localizations": [
             {
-              "description": "Annual access for two practitioners. Includes a shared dyad-of-intention thread.",
+              "description": "Annual access for two practitioners. Includes a shared dyad-of-intention thread. Additive to Inner Phases Premium — the two products do not replace one another.",
               "displayName": "Sadhana Couple — Yearly",
               "locale": "en_US"
             }
@@ -123,7 +135,7 @@
           "productID": "com.sankalpsthakur.sadhana.couple.yearly",
           "recurringSubscriptionPeriod": "P1Y",
           "referenceName": "Sadhana Couple Yearly",
-          "subscriptionGroupID": "100001",
+          "subscriptionGroupID": "100003",
           "type": "RecurringSubscription"
         }
       ]

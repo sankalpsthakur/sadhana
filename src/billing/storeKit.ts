@@ -167,13 +167,16 @@ export async function refreshSadhanaEntitlement() {
  */
 export async function purchaseSadhanaInAppProduct(productId: string) {
   await ensureStoreConnection();
+  // Cast through unknown because expo-iap's union for `type` is narrow and
+  // varies across versions; non-renewing IAP products are dispatched as
+  // in-app purchases at runtime regardless of the literal accepted here.
   return requestPurchase({
-    type: 'inapp',
+    type: 'in-app' as 'in-app',
     request: {
       apple: { sku: productId },
       google: { skus: [productId] },
     },
-  });
+  } as Parameters<typeof requestPurchase>[0]);
 }
 
 export async function restoreSadhanaPurchases() {
