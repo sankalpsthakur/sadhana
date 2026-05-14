@@ -9,10 +9,16 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from 'react-native';
+import { Audio } from 'expo-av';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../theme/useTheme';
 import { fontFamilies } from '../../theme/fonts';
 import { phaseInfo } from '../../mock/phases';
 import type { Phase } from '../../types';
+
+// Bundled bowl-strike audio. 432 Hz fundamental, 3s exponential decay.
+// See assets/audio/README.md for synthesis command.
+const BOWL_STRIKE = require('../../../assets/audio/bowl_strike.m4a');
 
 /**
  * Phase Open Ceremony (P10 — peak experience)
@@ -97,6 +103,7 @@ export function PhaseOpenCeremony({
   const lineOpacity = useRef(new Animated.Value(0)).current;
   const hintOpacity = useRef(new Animated.Value(0)).current;
   const particleAnim = useRef(new Animated.Value(0)).current;
+  const soundRef = useRef<Audio.Sound | null>(null);
 
   const info = phaseInfo[phase];
   const bija = PHASE_BIJA[phase];
@@ -123,8 +130,39 @@ export function PhaseOpenCeremony({
       lineOpacity.setValue(0);
       hintOpacity.setValue(0);
       particleAnim.setValue(0);
+      // Unload any sound left over from a prior open.
+      if (soundRef.current) {
+        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+      }
       return;
     }
+
+    // Bowl strike — single soft attack synced with the bija reveal. The
+    // heartbeat haptic fires on the same beat so body and ear arrive
+    // together. Both are best-effort: a silenced device or a haptic-less
+    // simulator should never block the visual ceremony.
+    let cancelled = false;
+    (async () => {
+      try {
+        // iOS: respect silent switch by not forcing playback in silent mode.
+        // (setAudioModeAsync defaults are already conservative.)
+        const { sound } = await Audio.Sound.createAsync(BOWL_STRIKE, {
+          shouldPlay: true,
+          volume: 0.85,
+        });
+        if (cancelled) {
+          sound.unloadAsync().catch(() => {});
+          return;
+        }
+        soundRef.current = sound;
+      } catch {
+        // Silently swallow — audio is enhancement, not requirement.
+      }
+    })();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+      () => {}
+    );
 
     // Background fade
     Animated.timing(fadeIn, {
@@ -196,6 +234,14 @@ export function PhaseOpenCeremony({
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
+
+    return () => {
+      cancelled = true;
+      if (soundRef.current) {
+        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+      }
+    };
   }, [
     visible,
     fadeIn,
@@ -352,18 +398,13 @@ export function PhaseOpenCeremony({
   );
 }
 
-// TODO(audio): bundle a struck-bowl tone for each chakra and play on visible.
-//   Spec (per redesigns/sadhana-redesign.md §6):
-//     - Muladhara C2 (~65 Hz)   → phase 1
-//     - Svadhisthana D2 (~73)   → phase 2
-//     - Manipura E2 (~82)       → phase 3
-//     - Anahata F2 (~87)        → phase 4
-//     - Vishuddha G2 (~98)      → phase 5
-//     - Ajna A2 (~110)          → phase 6
-//     - Sahasrara B2 (~123)     → phase 7
-//   Attack 4s, sustain 8s, gentle exponential decay. Format .m4a, mono, -18 LUFS.
-//   Default off at first launch; user opt-in via Settings → Ceremony (TODO surface).
-// TODO(haptic): three slow heartbeat-rhythm taps at second 1, 4, 7 via expo-haptics.
+// Wave 11 wires audio + haptics:
+//   - Single 432 Hz bowl strike (assets/audio/bowl_strike.m4a) on ceremony open.
+//   - One Success notification haptic on the attack.
+// Follow-ups (per redesigns §6 — not yet shipped):
+//   - Per-chakra tones (C2..B2). Today a single placeholder serves all gates.
+//   - Three slow heartbeat taps at 1s / 4s / 7s instead of a single notification.
+//   - Settings → Ceremony toggle (default off at first launch).
 
 const styles = StyleSheet.create({
   container: {

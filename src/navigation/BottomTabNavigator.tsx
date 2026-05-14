@@ -6,7 +6,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { PracticeScreen } from '../screens/PracticeScreen';
 import { JournalScreen } from '../screens/JournalScreen';
 import { TrendsScreen } from '../screens/TrendsScreen';
-import { LadderScreen } from '../screens/LadderScreen';
+import { PathScreen } from '../screens/PathScreen';
 import { useTheme } from '../theme/useTheme';
 import { useAppStore } from '../store/useAppStore';
 import { isTrendsLocked } from '../store/selectors';
@@ -198,10 +198,10 @@ export function BottomTabNavigator() {
       />
       <Tab.Screen
         name="Ladder"
-        component={LadderScreen}
+        component={PathScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="ladder" label="Ladder" focused={focused} />
+            <TabIcon icon="ladder" label="Path" focused={focused} />
           ),
         }}
       />

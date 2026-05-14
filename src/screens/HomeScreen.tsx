@@ -584,6 +584,17 @@ export function HomeScreen() {
         {/* H7: Ladder Card */}
         <LadderCard />
 
+        {/* H8: Sangha thread — P5 relatedness stub. Quiet, no avatars,
+            anonymized count. Backend wire-up lands in a later wave. */}
+        <View style={styles.sanghaThread}>
+          <Text style={[styles.sanghaText, { color: tokens.textSecondary }]}>
+            the sangha
+          </Text>
+          <Text style={[styles.sanghaCount, { color: tokens.textSecondary }]}>
+            247 are practicing now
+          </Text>
+        </View>
+
         {/* Demo Controls (development only) */}
         {__DEV__ && (
           <DemoControlPanel
@@ -649,6 +660,25 @@ const styles = StyleSheet.create({
   },
   flowCardsContainer: {
     gap: 12,
+  },
+  // Sangha thread — quiet single line. No card chrome, no avatars.
+  sanghaThread: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    gap: 4,
+  },
+  sanghaText: {
+    fontFamily: fontFamilies.display.regular,
+    fontSize: 11,
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+  },
+  sanghaCount: {
+    fontFamily: fontFamilies.display.regular,
+    fontStyle: 'italic',
+    fontSize: 13,
+    opacity: 0.7,
   },
   flowCard: {
     padding: 18,
