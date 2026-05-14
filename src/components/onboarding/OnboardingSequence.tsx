@@ -20,6 +20,7 @@ import {
   getSadhanaPaywallPlanPresentation,
   type SadhanaPaywallPlanId,
 } from '../../billing/products';
+import { track } from '../../services/analytics';
 
 type Step = 'question' | 'path' | 'paywall';
 
@@ -54,6 +55,7 @@ export function OnboardingSequence() {
 
   useEffect(() => {
     if (step !== 'paywall') return;
+    void track('paywall_shown', { selected_plan: selectedPlanId, selected_phase: selectedPhase });
 
     let cancelled = false;
     loadSadhanaSubscriptionProducts()
@@ -84,6 +86,8 @@ export function OnboardingSequence() {
         return;
       }
       setEntitlement(entitlement);
+      void track('paywall_converted', { plan_id: selectedPlan.productId, billing_plan: selectedPlan.billingPlanType });
+      void track('subscription_started', { plan_id: selectedPlan.productId, billing_plan: selectedPlan.billingPlanType });
       finishOnboarding();
     } catch (error) {
       const message =

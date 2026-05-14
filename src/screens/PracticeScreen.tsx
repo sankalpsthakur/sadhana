@@ -16,6 +16,7 @@ import {
   getCurrentTimeWindow,
   timeWindowLabels,
 } from '../mock/practices';
+import { track } from '../services/analytics';
 
 type PracticeStatus =
   | 'available'
@@ -48,6 +49,7 @@ export function PracticeScreen() {
 
   const practicesCompleted = useDailyCycleStore((s) => s.practicesCompleted);
   const recordPractice = useDailyCycleStore((s) => s.recordPractice);
+  const recordPracticeCompleted = useAppStore((s) => s.recordPracticeCompleted);
   const demoNow = useDailyCycleStore((s) => s.demoNow);
   const currentWindow = getCurrentTimeWindow();
   const now = demoNow ?? new Date();
@@ -164,12 +166,26 @@ export function PracticeScreen() {
     }
 
     const durationSeconds = parseDurationSeconds(practice.duration);
+    track('practice_started', {
+      practice_id: practice.id,
+      practice_name: practice.name,
+      phase,
+      mode,
+    });
     recordPractice({
       practiceId: practice.id,
       practiceName: practice.name,
       timestamp: new Date(),
       durationSeconds,
       completed: true,
+    });
+    recordPracticeCompleted();
+    track('practice_completed', {
+      practice_id: practice.id,
+      practice_name: practice.name,
+      duration_seconds: durationSeconds,
+      phase,
+      mode,
     });
 
     Alert.alert('Logged', `${practice.name} (${Math.round(durationSeconds / 60)} min)`);
