@@ -1,7 +1,53 @@
 {
   "identifier": "SADHANA_LOCAL_STOREKIT",
-  "nonRenewingSubscriptions": [],
-  "products": [],
+  "nonRenewingSubscriptions": [
+    {
+      "displayPrice": "149.00",
+      "familyShareable": false,
+      "internalID": "500001",
+      "localizations": [
+        {
+          "description": "Twelve-week Yatra cohort with a cohort leader, weekly themes, and a quiet practice group.",
+          "displayName": "Yatra Cohort — Quarterly",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.sankalpsthakur.sadhana.yatra.quarterly",
+      "referenceName": "Sadhana Yatra Quarterly Cohort"
+    }
+  ],
+  "products": [
+    {
+      "displayPrice": "29.99",
+      "familyShareable": false,
+      "internalID": "400001",
+      "localizations": [
+        {
+          "description": "Offer three months of Sadhana to someone crossing a threshold.",
+          "displayName": "Three-Month Gift",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.sankalpsthakur.sadhana.gift.threemonths",
+      "referenceName": "Sadhana Three-Month Gift",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "39.00",
+      "familyShareable": false,
+      "internalID": "400002",
+      "localizations": [
+        {
+          "description": "Hardcover practice journal shipped to your door, offered when Sthiti is established.",
+          "displayName": "Sthiti Practice Journal",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.sankalpsthakur.sadhana.journal.sthiti",
+      "referenceName": "Sadhana Sthiti Practice Journal",
+      "type": "Consumable"
+    }
+  ],
   "settings": {},
   "subscriptionGroups": [
     {
@@ -58,6 +104,78 @@
           "recurringSubscriptionPeriod": "P1Y",
           "referenceName": "Inner Phases Premium 12-Month Plan",
           "subscriptionGroupID": "100001",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "129.00",
+          "familyShareable": true,
+          "groupNumber": 3,
+          "internalID": "200003",
+          "localizations": [
+            {
+              "description": "Annual access for two practitioners. Includes a shared dyad-of-intention thread.",
+              "displayName": "Sadhana Couple — Yearly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.sankalpsthakur.sadhana.couple.yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Sadhana Couple Yearly",
+          "subscriptionGroupID": "100001",
+          "type": "RecurringSubscription"
+        }
+      ]
+    },
+    {
+      "id": "100002",
+      "localizations": [
+        {
+          "displayName": "Sangha Pro",
+          "locale": "en_US"
+        }
+      ],
+      "name": "Sangha Pro",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "29.00",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "200101",
+          "localizations": [
+            {
+              "description": "Monthly access to Sangha Pro: recorded teachings, quarterly group Q&A, transcripts library, and priority Sadhana-team communication.",
+              "displayName": "Sangha Pro Monthly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.sankalpsthakur.sadhana.sangha.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Sangha Pro Monthly",
+          "subscriptionGroupID": "100002",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "289.00",
+          "familyShareable": false,
+          "groupNumber": 2,
+          "internalID": "200102",
+          "localizations": [
+            {
+              "description": "Annual access to Sangha Pro at a held rate. Recorded teachings, quarterly group Q&A, transcripts library, priority Sadhana-team communication.",
+              "displayName": "Sangha Pro Yearly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.sankalpsthakur.sadhana.sangha.yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Sangha Pro Yearly",
+          "subscriptionGroupID": "100002",
           "type": "RecurringSubscription"
         }
       ]

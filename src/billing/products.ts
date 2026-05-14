@@ -2,14 +2,66 @@ import type { ProductSubscription } from 'expo-iap';
 
 export const SADHANA_MONTHLY_PRODUCT_ID = 'com.sadhana.premium.monthly';
 export const SADHANA_ANNUAL_PRODUCT_ID = 'com.sadhana.premium.annual';
+export const SADHANA_SANGHA_MONTHLY_PRODUCT_ID =
+  'com.sankalpsthakur.sadhana.sangha.monthly';
+export const SADHANA_SANGHA_YEARLY_PRODUCT_ID =
+  'com.sankalpsthakur.sadhana.sangha.yearly';
+export const SADHANA_COUPLE_YEARLY_PRODUCT_ID =
+  'com.sankalpsthakur.sadhana.couple.yearly';
+export const SADHANA_GIFT_THREE_MONTHS_PRODUCT_ID =
+  'com.sankalpsthakur.sadhana.gift.threemonths';
 
 export const SADHANA_SUBSCRIPTION_PRODUCT_IDS = [
   SADHANA_MONTHLY_PRODUCT_ID,
   SADHANA_ANNUAL_PRODUCT_ID,
+  SADHANA_SANGHA_MONTHLY_PRODUCT_ID,
+  SADHANA_SANGHA_YEARLY_PRODUCT_ID,
+  SADHANA_COUPLE_YEARLY_PRODUCT_ID,
+] as const;
+
+export const SADHANA_CONSUMABLE_PRODUCT_IDS = [
+  SADHANA_GIFT_THREE_MONTHS_PRODUCT_ID,
 ] as const;
 
 export type SadhanaSubscriptionProductId =
   (typeof SADHANA_SUBSCRIPTION_PRODUCT_IDS)[number];
+
+export type SadhanaConsumableProductId =
+  (typeof SADHANA_CONSUMABLE_PRODUCT_IDS)[number];
+
+export type SadhanaTier = 'inner-phases' | 'sangha-pro' | 'couple';
+
+export interface SadhanaTierDescriptor {
+  tier: SadhanaTier;
+  monthlyProductId?: SadhanaSubscriptionProductId;
+  yearlyProductId?: SadhanaSubscriptionProductId;
+  monthlyPrice?: string;
+  yearlyPrice?: string;
+}
+
+export const SADHANA_TIERS: Record<SadhanaTier, SadhanaTierDescriptor> = {
+  'inner-phases': {
+    tier: 'inner-phases',
+    monthlyProductId: SADHANA_MONTHLY_PRODUCT_ID,
+    yearlyProductId: SADHANA_ANNUAL_PRODUCT_ID,
+    monthlyPrice: '$14.99',
+    yearlyPrice: '$59.99',
+  },
+  'sangha-pro': {
+    tier: 'sangha-pro',
+    monthlyProductId: SADHANA_SANGHA_MONTHLY_PRODUCT_ID,
+    yearlyProductId: SADHANA_SANGHA_YEARLY_PRODUCT_ID,
+    monthlyPrice: '$29.00',
+    yearlyPrice: '$289.00',
+  },
+  couple: {
+    tier: 'couple',
+    yearlyProductId: SADHANA_COUPLE_YEARLY_PRODUCT_ID,
+    yearlyPrice: '$129.00',
+  },
+};
+
+export const SADHANA_GIFT_PRICE = '$29.99';
 
 export type SadhanaPaywallPlanId = 'monthly-12-month' | 'annual';
 export type SadhanaBillingPlanType = 'monthly' | 'upFront';

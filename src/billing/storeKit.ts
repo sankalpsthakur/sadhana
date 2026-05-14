@@ -160,6 +160,22 @@ export async function refreshSadhanaEntitlement() {
   return toEntitlementSnapshot('none', null);
 }
 
+/**
+ * Purchase a non-renewing or consumable in-app product (e.g. the Yatra
+ * quarterly cohort, the Sthiti hardcover journal). Non-renewing subscriptions
+ * on iOS are treated as `inapp` by StoreKit, not `subs`.
+ */
+export async function purchaseSadhanaInAppProduct(productId: string) {
+  await ensureStoreConnection();
+  return requestPurchase({
+    type: 'inapp',
+    request: {
+      apple: { sku: productId },
+      google: { skus: [productId] },
+    },
+  });
+}
+
 export async function restoreSadhanaPurchases() {
   await ensureStoreConnection();
   await restorePurchases();
