@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
 import { LogBox, Text, useColorScheme } from 'react-native';
@@ -9,10 +9,11 @@ import { BottomTabNavigator } from './src/navigation/BottomTabNavigator';
 import { useAppStore } from './src/store/useAppStore';
 import { OnboardingSequence } from './src/components/onboarding/OnboardingSequence';
 import { useDailyCycleStore } from './src/store/useDailyCycleStore';
-import { NightModeScreen } from './src/components/flows';
+import { NightModeScreen, PhaseOpenCeremony } from './src/components/flows';
 import { fontAssets, fontFamilies } from './src/theme/fonts';
 import { refreshSadhanaEntitlement } from './src/billing';
 import { RootTabParamList } from './src/navigation/types';
+import type { Phase } from './src/types';
 
 type TextDefaults = {
   allowFontScaling?: boolean;
@@ -45,6 +46,30 @@ function AppContent() {
   const setEntitlement = useAppStore((state) => state.setEntitlement);
   const clearEntitlement = useAppStore((state) => state.clearEntitlement);
   const nightModeActiveAt = useDailyCycleStore((s) => s.nightModeActiveAt);
+
+  // Phase-open ceremony — fires when the user crosses *up* into a new phase.
+  // We hold the last-seen phase in a ref so a remount doesn't retrigger the
+  // ceremony for the same phase. The initial value is the persisted phase,
+  // so the very first render does not fire.
+  const lastPhaseRef = useRef<Phase>(phase);
+  const [ceremony, setCeremony] = useState<{
+    visible: boolean;
+    phase: Phase;
+    previousPhase: Phase;
+  }>({ visible: false, phase, previousPhase: phase });
+
+  useEffect(() => {
+    if (!hasOnboarded) {
+      // Don't fire during onboarding — phase changes there are setup, not progression.
+      lastPhaseRef.current = phase;
+      return;
+    }
+    const prev = lastPhaseRef.current;
+    if (phase > prev) {
+      setCeremony({ visible: true, phase, previousPhase: prev });
+    }
+    lastPhaseRef.current = phase;
+  }, [phase, hasOnboarded]);
 
   useEffect(() => {
     if (!fontsLoaded || fontError) return;
@@ -101,6 +126,12 @@ function AppContent() {
           <OnboardingSequence />
         )}
         <StatusBar style={statusStyle} />
+        <PhaseOpenCeremony
+          visible={ceremony.visible}
+          phase={ceremony.phase}
+          previousPhase={ceremony.previousPhase}
+          onDismiss={() => setCeremony((c) => ({ ...c, visible: false }))}
+        />
       </NavigationContainer>
     </ThemeProvider>
   );

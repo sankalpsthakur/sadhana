@@ -58,5 +58,47 @@ target 'Sadhana' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
+
+    # Xcode 26 + fmt 11 hit a consteval incompatibility in fmt/format-inl.h.
+    # The fmt header has a long #if/#elif chain that ends up redefining
+    # FMT_USE_CONSTEVAL to 1, which overrides any -DFMT_USE_CONSTEVAL=0 we
+    # set via GCC_PREPROCESSOR_DEFINITIONS. Patching base.h directly is the
+    # only durable fix until fmt cuts a release with consteval guarded
+    # against Apple clang 17+. Tracked: https://github.com/fmtlib/fmt/issues/3884
+    # wave10: prior wave9 patch swallowed the FMT_CONSTEVAL / FMT_CONSTEXPR20
+    # macro block that immediately follows the consteval detection. Restore it
+    # explicitly so the rest of fmt compiles.
+    fmt_base = File.join(installer.sandbox.pod_dir('fmt'), 'include', 'fmt', 'base.h')
+    if File.exist?(fmt_base)
+      content = File.read(fmt_base)
+      marker = '// wave10: forced FMT_USE_CONSTEVAL=0'
+      unless content.include?(marker)
+        # Strip any prior wave9 patch first.
+        content = content.sub(
+          /^\/\/ wave9: forced FMT_USE_CONSTEVAL=0\n#define FMT_USE_CONSTEVAL 0\n/m,
+          ''
+        )
+        replacement = <<~PATCH
+          #{marker}
+          #define FMT_USE_CONSTEVAL 0
+          #define FMT_CONSTEVAL
+          #define FMT_CONSTEXPR20
+        PATCH
+        patched = content.sub(
+          /^\/\/ Detect consteval.*?^#endif\n#if FMT_USE_CONSTEVAL.*?^#endif\n/m,
+          replacement
+        )
+        # Fallback: if the longer block isn't present (already-stripped file),
+        # patch the shorter "Detect consteval...#endif" form instead.
+        if patched == content
+          patched = content.sub(
+            /^\/\/ Detect consteval.*?^#endif\n/m,
+            replacement
+          )
+        end
+        File.write(fmt_base, patched)
+        puts '[wave10] patched fmt/base.h: disabled FMT_USE_CONSTEVAL + stubbed macros'
+      end
+    end
   end
 end

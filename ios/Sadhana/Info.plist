@@ -57,7 +57,7 @@
 	<key>NSHealthShareUsageDescription</key>
 	<string>Inner Phases reads sleep duration, heart-rate variability, and resting heart rate from Health to personalize daily practice guidance on your device. Inner Phases does not write to Health.</string>
 	<key>RCTNewArchEnabled</key>
-	<true/>
+	<false/>
 	<key>SECURE_ENVELOPE_ALGORITHM</key>
 	<string>AES-256-GCM</string>
 	<key>SECURE_ENVELOPE_VERSION</key>
