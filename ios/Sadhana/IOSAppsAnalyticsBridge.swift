@@ -1,6 +1,5 @@
 import Foundation
 import UIKit
-import StoreKit
 
 /// Bridge between React Native (Sadhana JS) and the iosapps analytics +
 /// flags + review-prompt infrastructure described in
@@ -86,21 +85,9 @@ final class IOSAppsReviewPromptsBridge: NSObject {
 private final class AnalyticsClient {
   static let shared = AnalyticsClient()
 
-  private let endpoint = URL(string: "https://telemetry.iosapps.io/v1/events")!
-  private let queueLock = NSLock()
-  private var buffer: [[String: Any]] = []
-  private let appID = "sadhana"
-  private let userIDKey = "iosapps.analytics.userID"
   private let optOutKey = "iosapps.analytics.optedOut"
-  private let sessionID = UUID().uuidString
-  private let flushInterval: TimeInterval = 30
-  private let maxBatchSize = 100
 
-  private init() {
-    Timer.scheduledTimer(withTimeInterval: flushInterval, repeats: true) { [weak self] _ in
-      self?.flush()
-    }
-  }
+  private init() {}
 
   private var isOptedOut: Bool {
     UserDefaults.standard.bool(forKey: optOutKey)
@@ -108,72 +95,17 @@ private final class AnalyticsClient {
 
   func setOptOut(_ optedOut: Bool) {
     UserDefaults.standard.set(optedOut, forKey: optOutKey)
-    if optedOut {
-      queueLock.lock()
-      buffer.removeAll()
-      queueLock.unlock()
-      UserDefaults.standard.removeObject(forKey: userIDKey)
-    }
-  }
-
-  private var userID: String {
-    if let existing = UserDefaults.standard.string(forKey: userIDKey) {
-      return existing
-    }
-    let new = UUID().uuidString
-    UserDefaults.standard.set(new, forKey: userIDKey)
-    return new
   }
 
   func track(eventName: String, properties: [String: Any]) {
     guard !isOptedOut else { return }
-    #if DEBUG
-    // Per ANALYTICS_DESIGN §2, debug builds emit no network traffic.
+    _ = eventName
+    _ = properties
+    // Launch privacy gate: source call sites may be wired, but no analytics
+    // payload leaves the device until App Store privacy disclosures and a
+    // production analytics package are deliberately enabled.
     return
-    #else
-    let event: [String: Any] = [
-      "event_name": eventName,
-      "app_id": appID,
-      "user_id": userID,
-      "session_id": sessionID,
-      "timestamp": Self.iso8601.string(from: Date()),
-      "properties": properties,
-    ]
-    queueLock.lock()
-    buffer.append(event)
-    let shouldFlush = buffer.count >= maxBatchSize
-    queueLock.unlock()
-    if shouldFlush { flush() }
-    #endif
   }
-
-  func flush() {
-    queueLock.lock()
-    guard !buffer.isEmpty else { queueLock.unlock(); return }
-    let batch = buffer
-    buffer.removeAll()
-    queueLock.unlock()
-
-    var req = URLRequest(url: endpoint)
-    req.httpMethod = "POST"
-    req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    req.httpBody = try? JSONSerialization.data(withJSONObject: ["events": batch])
-
-    URLSession.shared.dataTask(with: req) { [weak self] _, response, error in
-      let failed = error != nil || ((response as? HTTPURLResponse)?.statusCode ?? 0) >= 400
-      if failed, let self = self {
-        self.queueLock.lock()
-        self.buffer.append(contentsOf: batch)
-        self.queueLock.unlock()
-      }
-    }.resume()
-  }
-
-  private static let iso8601: ISO8601DateFormatter = {
-    let f = ISO8601DateFormatter()
-    f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    return f
-  }()
 }
 
 // MARK: - Inline flags client (placeholder for IOSAppsFlags package)
@@ -195,36 +127,5 @@ private final class FlagsClient {
       return override
     }
     return defaults[key]
-  }
-}
-
-// MARK: - Inline review-prompt client (placeholder for IOSAppsReviewPrompts package)
-
-private final class ReviewPromptsClient {
-  static let shared = ReviewPromptsClient()
-
-  private let lastShownKey = "iosapps.review.lastShownAt"
-  private let throttle: TimeInterval = 60 * 60 * 24 * 120 // 120 days
-
-  func requestIfPeak(_ peak: String) -> Bool {
-    let now = Date().timeIntervalSince1970
-    let last = UserDefaults.standard.double(forKey: lastShownKey)
-    guard now - last >= throttle else { return false }
-
-    guard let scene = UIApplication.shared.connectedScenes
-      .compactMap({ $0 as? UIWindowScene })
-      .first(where: { $0.activationState == .foregroundActive })
-      ?? UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first
-    else {
-      return false
-    }
-
-    if #available(iOS 14.0, *) {
-      SKStoreReviewController.requestReview(in: scene)
-    } else {
-      SKStoreReviewController.requestReview()
-    }
-    UserDefaults.standard.set(now, forKey: lastShownKey)
-    return true
   }
 }
