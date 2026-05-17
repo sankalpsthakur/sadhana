@@ -14,6 +14,7 @@ import {
 } from '../types';
 import { persistStorage } from './persistStorage';
 import type { SadhanaEntitlementSnapshot } from '../billing';
+import { track } from '../services/analytics';
 
 interface AppState {
   // Phase (capability level)
@@ -80,6 +81,17 @@ interface AppState {
   entitlement: SadhanaEntitlementSnapshot | null;
   setEntitlement: (entitlement: SadhanaEntitlementSnapshot | null) => void;
   clearEntitlement: () => void;
+
+  // Engagement telemetry (wave13 feedback loops)
+  firstOpenedAt: number | null;
+  lastActiveAt: number | null;
+  totalPracticesCompleted: number;
+  npsShownAt: number | null;
+  sambandhaReachedAt: number | null;
+  markActive: (now?: number) => void;
+  recordPracticeCompleted: () => void;
+  markNpsShown: (now?: number) => void;
+  markSambandhaReached: (now?: number) => void;
 }
 
 const defaultLocks: SafetyLocks = {
@@ -117,6 +129,11 @@ const defaultState = {
   drift: 'Unknown' as DriftStatus,
   netiCooldownEndsAt: null as number | null,
   serpentCooldownEndsAt: null as number | null,
+  firstOpenedAt: null as number | null,
+  lastActiveAt: null as number | null,
+  totalPracticesCompleted: 0,
+  npsShownAt: null as number | null,
+  sambandhaReachedAt: null as number | null,
 };
 
 export const useAppStore = create<AppState>()(
@@ -124,9 +141,18 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       ...defaultState,
 
-      setPhase: (phase) => set({ phase }),
-      setStability: (stability) =>
-        set({ stability: Math.max(0, Math.min(100, stability)) }),
+      setPhase: (phase) =>
+        set((state) => {
+          if (state.phase !== phase) {
+            void track('phase_advanced', { from: state.phase, to: phase });
+          }
+          return { phase };
+        }),
+      setStability: (stability) => {
+        const clamped = Math.max(0, Math.min(100, stability));
+        void track('stability_check', { stability: clamped });
+        return set({ stability: clamped });
+      },
       setMode: (mode) => set({ mode }),
       setConfidence: (confidence) => set({ confidence }),
       setHealthIntegrationEnabled: (enabled) => set({ healthIntegrationEnabled: enabled }),
@@ -179,6 +205,17 @@ export const useAppStore = create<AppState>()(
       setEntitlement: (entitlement) => set({ entitlement }),
       clearEntitlement: () => set({ entitlement: null, hasOnboarded: false }),
 
+      markActive: (now = Date.now()) =>
+        set((state) => ({
+          firstOpenedAt: state.firstOpenedAt ?? now,
+          lastActiveAt: now,
+        })),
+      recordPracticeCompleted: () =>
+        set((state) => ({ totalPracticesCompleted: state.totalPracticesCompleted + 1 })),
+      markNpsShown: (now = Date.now()) => set({ npsShownAt: now }),
+      markSambandhaReached: (now = Date.now()) =>
+        set((state) => ({ sambandhaReachedAt: state.sambandhaReachedAt ?? now })),
+
       reset: () => set(defaultState),
     }),
     {
@@ -193,6 +230,11 @@ export const useAppStore = create<AppState>()(
         locks: state.locks,
         netiCooldownEndsAt: state.netiCooldownEndsAt,
         serpentCooldownEndsAt: state.serpentCooldownEndsAt,
+        firstOpenedAt: state.firstOpenedAt,
+        lastActiveAt: state.lastActiveAt,
+        totalPracticesCompleted: state.totalPracticesCompleted,
+        npsShownAt: state.npsShownAt,
+        sambandhaReachedAt: state.sambandhaReachedAt,
       }),
     }
   )

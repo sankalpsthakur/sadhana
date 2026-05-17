@@ -15,6 +15,10 @@
 		7DAE44EC87BDE308D745CCBE /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7FD07210584E3727F9EAEF /* ExpoModulesProvider.swift */; };
 		8F4B4D8D5B6A4A519B221101 /* SadhanaStoreKitCommitment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F4B4D8B5B6A4A519B221101 /* SadhanaStoreKitCommitment.swift */; };
 		8F4B4D8E5B6A4A519B221101 /* SadhanaStoreKitCommitment.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F4B4D8C5B6A4A519B221101 /* SadhanaStoreKitCommitment.m */; };
+		A1B2C3D40001000000000001 /* IOSAppsAnalyticsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000001 /* IOSAppsAnalyticsBridge.swift */; };
+		A1B2C3D40001000000000002 /* IOSAppsAnalyticsBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000002 /* IOSAppsAnalyticsBridge.m */; };
+		A1B2C3D40001000000000003 /* IOSAppsReviewPromptClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000003 /* IOSAppsReviewPromptClient.swift */; };
+		A1B2C3D40001000000000004 /* IOSAppsReviewPromptClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000003 /* IOSAppsReviewPromptClient.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -35,10 +39,13 @@
 		13B07F961A680F5B00A75B9A /* Sadhana.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sadhana.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Sadhana/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Sadhana/Info.plist; sourceTree = "<group>"; };
-		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Sadhana/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AA7FD07210584E3727F9EAEF /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Sadhana/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		8F4B4D8B5B6A4A519B221101 /* SadhanaStoreKitCommitment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SadhanaStoreKitCommitment.swift; path = Sadhana/SadhanaStoreKitCommitment.swift; sourceTree = "<group>"; };
 		8F4B4D8C5B6A4A519B221101 /* SadhanaStoreKitCommitment.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SadhanaStoreKitCommitment.m; path = Sadhana/SadhanaStoreKitCommitment.m; sourceTree = "<group>"; };
+		A1B2C3D40000000000000001 /* IOSAppsAnalyticsBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IOSAppsAnalyticsBridge.swift; path = Sadhana/IOSAppsAnalyticsBridge.swift; sourceTree = "<group>"; };
+		A1B2C3D40000000000000002 /* IOSAppsAnalyticsBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = IOSAppsAnalyticsBridge.m; path = Sadhana/IOSAppsAnalyticsBridge.m; sourceTree = "<group>"; };
+		A1B2C3D40000000000000003 /* IOSAppsReviewPromptClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IOSAppsReviewPromptClient.swift; path = ../native/IOSAppsReviewPromptClient.swift; sourceTree = "<group>"; };
+		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Sadhana/SplashScreen.storyboard; sourceTree = "<group>"; };
+		AA7FD07210584E3727F9EAEF /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Sadhana/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		B918F9F735A2AC20A0A398B2 /* Pods-Sadhana.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sadhana.release.xcconfig"; path = "Target Support Files/Pods-Sadhana/Pods-Sadhana.release.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		CF3F99864A29C173F0063AB5 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Sadhana/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -90,6 +97,9 @@
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
 				8F4B4D8B5B6A4A519B221101 /* SadhanaStoreKitCommitment.swift */,
 				8F4B4D8C5B6A4A519B221101 /* SadhanaStoreKitCommitment.m */,
+				A1B2C3D40000000000000001 /* IOSAppsAnalyticsBridge.swift */,
+				A1B2C3D40000000000000002 /* IOSAppsAnalyticsBridge.m */,
+				A1B2C3D40000000000000003 /* IOSAppsReviewPromptClient.swift */,
 				F11748442D0722820044C1D9 /* Sadhana-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -381,6 +391,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E356F01AD99517003FC87E /* SadhanaTests.swift in Sources */,
+				A1B2C3D40001000000000004 /* IOSAppsReviewPromptClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,6 +402,9 @@
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
 				8F4B4D8D5B6A4A519B221101 /* SadhanaStoreKitCommitment.swift in Sources */,
 				8F4B4D8E5B6A4A519B221101 /* SadhanaStoreKitCommitment.m in Sources */,
+				A1B2C3D40001000000000001 /* IOSAppsAnalyticsBridge.swift in Sources */,
+				A1B2C3D40001000000000002 /* IOSAppsAnalyticsBridge.m in Sources */,
+				A1B2C3D40001000000000003 /* IOSAppsReviewPromptClient.swift in Sources */,
 				7DAE44EC87BDE308D745CCBE /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,6 +426,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sankalpsthakur.sadhana.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -426,6 +441,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sankalpsthakur.sadhana.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -463,11 +479,11 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sankalpsthakur.sadhana;
-				PRODUCT_NAME = "InnerPhases";
+				PRODUCT_NAME = InnerPhases;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sadhana/Sadhana-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -496,10 +512,10 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sankalpsthakur.sadhana;
-				PRODUCT_NAME = "InnerPhases";
+				PRODUCT_NAME = InnerPhases;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sadhana/Sadhana-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

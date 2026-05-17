@@ -13,6 +13,9 @@ import { NightModeScreen } from './src/components/flows';
 import { fontAssets, fontFamilies } from './src/theme/fonts';
 import { refreshSadhanaEntitlement } from './src/billing';
 import { RootTabParamList } from './src/navigation/types';
+import { useFeedbackLoops } from './src/services/feedbackLoops';
+import { NPSPrompt } from './src/components/feedback/NPSPrompt';
+import { WelcomeBackBanner } from './src/components/feedback/WelcomeBackBanner';
 
 type TextDefaults = {
   allowFontScaling?: boolean;
@@ -95,7 +98,7 @@ function AppContent() {
           nightModeActiveAt ? (
             <NightModeScreen />
           ) : (
-            <BottomTabNavigator />
+            <AuthenticatedShell />
           )
         ) : (
           <OnboardingSequence />
@@ -103,6 +106,19 @@ function AppContent() {
         <StatusBar style={statusStyle} />
       </NavigationContainer>
     </ThemeProvider>
+  );
+}
+
+function AuthenticatedShell() {
+  const { showNps, closeNps, welcomeBackBanner, dismissWelcomeBack } = useFeedbackLoops();
+  return (
+    <>
+      <BottomTabNavigator />
+      {welcomeBackBanner && (
+        <WelcomeBackBanner message={welcomeBackBanner} onDismiss={dismissWelcomeBack} />
+      )}
+      <NPSPrompt visible={showNps} onClose={closeNps} />
+    </>
   );
 }
 

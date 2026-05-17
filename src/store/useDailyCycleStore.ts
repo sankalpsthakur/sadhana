@@ -20,6 +20,7 @@ import {
 } from '../types/dailyCycle';
 import { persistStorage } from './persistStorage';
 import { useAppStore } from './useAppStore';
+import { track } from '../services/analytics';
 
 interface DailyCycleState extends DailyCycle {
   // Learned patterns (7-day rolling average)
@@ -498,6 +499,9 @@ export const useDailyCycleStore = create<DailyCycleState>()(
           mood: finalEntry.moodQuadrant,
           gratitude: gratitude ? 'yes' : 'no',
         });
+        if (gratitude) {
+          void track('daily_reflection_written', { length: gratitude.length });
+        }
       },
 
       activateNightMode: () => {
