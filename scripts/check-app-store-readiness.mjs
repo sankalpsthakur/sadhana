@@ -106,10 +106,10 @@ if (infoPlist.NSHealthShareUsageDescription === SHARE_USAGE) {
   fail('NSHealthShareUsageDescription does not match the approved local read-only copy');
 }
 
-if (infoPlist.ITSAppUsesNonExemptEncryption === true) {
-  pass('Export compliance declares non-exempt standard encryption in app.json');
+if (infoPlist.ITSAppUsesNonExemptEncryption === false) {
+  pass('Export compliance declares only exempt encryption in app.json');
 } else {
-  fail('ITSAppUsesNonExemptEncryption must be true because the app implements AES-256-GCM');
+  fail('ITSAppUsesNonExemptEncryption must be false to match App Store Connect export compliance for the shipped build');
 }
 
 if (infoPlist.SECURE_ENVELOPE_ALGORITHM === 'AES-256-GCM' && infoPlist.SECURE_ENVELOPE_VERSION === 1) {
@@ -118,10 +118,13 @@ if (infoPlist.SECURE_ENVELOPE_ALGORITHM === 'AES-256-GCM' && infoPlist.SECURE_EN
   fail('Secure envelope metadata is missing AES-256-GCM v1');
 }
 
-if ('NSHealthUpdateUsageDescription' in infoPlist) {
-  fail('NSHealthUpdateUsageDescription is present, but Sadhana does not write Health data');
+if (
+  typeof infoPlist.NSHealthUpdateUsageDescription === 'string' &&
+  infoPlist.NSHealthUpdateUsageDescription.includes('does not write data to Health')
+) {
+  pass('Health update usage copy is present and explicitly declares no Health writes');
 } else {
-  pass('Health update usage copy is absent, matching read-only HealthKit permissions');
+  fail('NSHealthUpdateUsageDescription must be present for App Store upload and must explicitly state that Sadhana does not write Health data');
 }
 
 if (dependencies['expo-secure-store']) {
@@ -194,19 +197,22 @@ if (existsSync(iosInfoPlistPath)) {
   } else {
     fail('Generated iOS Info.plist does not match HealthKit usage copy; rerun prebuild before native build');
   }
-  if (generatedInfoPlist.includes('NSHealthUpdateUsageDescription')) {
-    fail('Generated iOS Info.plist still contains Health write usage copy');
+  if (
+    generatedInfoPlist.includes('NSHealthUpdateUsageDescription') &&
+    generatedInfoPlist.includes('does not write data to Health')
+  ) {
+    pass('Generated iOS Info.plist includes App Store-required Health update copy with no-write wording');
   } else {
-    pass('Generated iOS Info.plist has no Health write usage copy');
+    fail('Generated iOS Info.plist is missing App Store-required Health update copy with no-write wording');
   }
   if (
     generatedInfoPlist.includes('<key>ITSAppUsesNonExemptEncryption</key>') &&
-    generatedInfoPlist.includes('<true/>') &&
+    generatedInfoPlist.includes('<false/>') &&
     generatedInfoPlist.includes('AES-256-GCM')
   ) {
-    pass('Generated iOS Info.plist declares non-exempt AES-256-GCM encryption');
+    pass('Generated iOS Info.plist declares exempt AES-256-GCM export compliance metadata');
   } else {
-    fail('Generated iOS Info.plist is missing non-exempt AES-256-GCM encryption metadata');
+    fail('Generated iOS Info.plist is missing exempt AES-256-GCM export compliance metadata');
   }
 } else {
   warn('Generated ios/Sadhana/Info.plist is absent; run Expo prebuild before native verification');
