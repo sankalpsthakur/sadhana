@@ -18,7 +18,7 @@ permissions:
 jobs:
   preflight:
     name: Preflight gates
-    runs-on: macos-26
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
 
       - name: Select Xcode
         run: |
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
           xcodebuild -version
 
       - name: Pod install
@@ -81,7 +81,7 @@ jobs:
 
   upload:
     name: Archive and upload to TestFlight
-    runs-on: macos-26
+    runs-on: macos-15
     needs: preflight
     if: ${{ inputs.upload_to_testflight == true || startsWith(github.ref, 'refs/heads/release/') }}
     env:
@@ -101,7 +101,7 @@ jobs:
         run: npm ci
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
 
       - name: Pod install
         working-directory: ios
