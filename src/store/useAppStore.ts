@@ -203,7 +203,7 @@ export const useAppStore = create<AppState>()(
 
       completeOnboarding: () => set({ hasOnboarded: true }),
       setEntitlement: (entitlement) => set({ entitlement }),
-      clearEntitlement: () => set({ entitlement: null, hasOnboarded: false }),
+      clearEntitlement: () => set({ entitlement: null }),
 
       markActive: (now = Date.now()) =>
         set((state) => ({

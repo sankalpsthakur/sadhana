@@ -36,6 +36,7 @@ export function OnboardingSequence() {
     'monthly-12-month'
   );
   const [subscriptionProducts, setSubscriptionProducts] = useState<ProductSubscription[]>([]);
+  const [productLoadState, setProductLoadState] = useState<'idle' | 'loading' | 'loaded' | 'unavailable'>('idle');
   const [purchaseState, setPurchaseState] = useState<'idle' | 'purchasing' | 'restoring'>('idle');
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
@@ -47,6 +48,8 @@ export function OnboardingSequence() {
   const productsById = useMemo(() => {
     return new Map(subscriptionProducts.map((product) => [product.id, product]));
   }, [subscriptionProducts]);
+  const selectedProductAvailable = productsById.has(selectedPlan.productId);
+  const productUnavailable = productLoadState === 'unavailable';
 
   const finishOnboarding = () => {
     setPhase(selectedPhase);
@@ -58,12 +61,19 @@ export function OnboardingSequence() {
     void track('paywall_shown', { selected_plan: selectedPlanId, selected_phase: selectedPhase });
 
     let cancelled = false;
+    setProductLoadState('loading');
     loadSadhanaSubscriptionProducts()
       .then((products) => {
-        if (!cancelled) setSubscriptionProducts(products);
+        if (!cancelled) {
+          setSubscriptionProducts(products);
+          setProductLoadState(products.length > 0 ? 'loaded' : 'unavailable');
+        }
       })
       .catch(() => {
-        if (!cancelled) setSubscriptionProducts([]);
+        if (!cancelled) {
+          setSubscriptionProducts([]);
+          setProductLoadState('unavailable');
+        }
       });
 
     return () => {
@@ -74,6 +84,10 @@ export function OnboardingSequence() {
   const startSelectedPlan = async () => {
     if (purchaseState !== 'idle') return;
     setPurchaseError(null);
+    if (productUnavailable || !selectedProductAvailable) {
+      setPurchaseError('This Premium product is not available from App Store Connect yet. You can still peek inside while the subscription record is fixed.');
+      return;
+    }
     setPurchaseState('purchasing');
     try {
       await purchaseSadhanaSubscription(
@@ -86,8 +100,11 @@ export function OnboardingSequence() {
         return;
       }
       setEntitlement(entitlement);
-      void track('paywall_converted', { plan_id: selectedPlan.productId, billing_plan: selectedPlan.billingPlanType });
-      void track('subscription_started', { plan_id: selectedPlan.productId, billing_plan: selectedPlan.billingPlanType });
+      void track('paywall_converted', {
+        plan_id: selectedPlan.productId,
+        billing_plan: selectedPlan.billingPlanType,
+        entitlement_source: entitlement.source,
+      });
       finishOnboarding();
     } catch (error) {
       const message =
@@ -118,6 +135,11 @@ export function OnboardingSequence() {
     } finally {
       setPurchaseState('idle');
     }
+  };
+
+  const peekInside = () => {
+    setEntitlement(null);
+    finishOnboarding();
   };
 
   return (
@@ -287,10 +309,32 @@ export function OnboardingSequence() {
                   <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>
                     {presentation.commitmentLine}
                   </Text>
+                  {productLoadState !== 'loading' && !productsById.has(plan.productId) && (
+                    <Text style={[styles.unavailableText, { color: tokens.textSecondary }]}>
+                      Product unavailable in this build's App Store response.
+                    </Text>
+                  )}
                 </Pressable>
               );
             })}
           </View>
+          {productUnavailable && (
+            <View
+              style={[
+                styles.unavailableBox,
+                { borderColor: tokens.border, backgroundColor: tokens.bgSecondary },
+              ]}
+            >
+              <Text style={[styles.promiseTitle, { color: tokens.textPrimary }]}>
+                Store product unavailable
+              </Text>
+              <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>
+                App Store did not return the configured Premium product IDs yet.
+                Purchase is disabled, but preview access remains open for
+                TestFlight review.
+              </Text>
+            </View>
+          )}
           {purchaseError && (
             <Text style={[styles.errorText, { color: tokens.textSecondary }]}>{purchaseError}</Text>
           )}
@@ -300,11 +344,28 @@ export function OnboardingSequence() {
             accessibilityRole="button"
             accessibilityLabel={selectedPlan.cta}
             testID="OnboardingStartPlanButton"
-            disabled={purchaseState !== 'idle'}
+            disabled={purchaseState !== 'idle' || productUnavailable || !selectedProductAvailable}
             onPress={startSelectedPlan}
           >
             <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
-              {purchaseState === 'purchasing' ? 'Opening App Store...' : selectedPlan.cta}
+              {purchaseState === 'purchasing'
+                ? 'Opening App Store...'
+                : productUnavailable || !selectedProductAvailable
+                  ? 'Premium unavailable'
+                  : selectedPlan.cta}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.previewButton, { borderColor: tokens.border }]}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Peek inside without purchase"
+            testID="OnboardingPeekButton"
+            disabled={purchaseState !== 'idle'}
+            onPress={peekInside}
+          >
+            <Text style={[styles.previewText, { color: tokens.textPrimary }]}>
+              Peek inside without purchase
             </Text>
           </Pressable>
           <Pressable
@@ -354,7 +415,11 @@ const styles = StyleSheet.create({
   planDescription: { fontFamily: fontFamilies.text.regular, fontSize: 12, lineHeight: 18 },
   planBilling: { fontFamily: fontFamilies.text.semibold, fontSize: 14, lineHeight: 20 },
   radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2 },
+  unavailableBox: { borderWidth: 1, borderRadius: 14, padding: 14, gap: 6, marginBottom: 12 },
+  unavailableText: { fontFamily: fontFamilies.text.medium, fontSize: 11, lineHeight: 16 },
   errorText: { fontFamily: fontFamilies.text.regular, fontSize: 12, lineHeight: 18, marginBottom: 12 },
+  previewButton: { height: 48, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center', marginTop: 10 },
+  previewText: { fontFamily: fontFamilies.text.semibold, fontSize: 14 },
   restoreButton: { alignItems: 'center', paddingVertical: 14 },
   restoreText: { fontFamily: fontFamilies.text.medium, fontSize: 13 },
 });

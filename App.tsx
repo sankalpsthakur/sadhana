@@ -94,7 +94,7 @@ function AppContent() {
   return (
     <ThemeProvider phase={phase} scheme={scheme === 'light' ? 'light' : 'dark'}>
       <NavigationContainer linking={linking}>
-        {hasOnboarded && entitlement?.active ? (
+        {hasOnboarded ? (
           nightModeActiveAt ? (
             <NightModeScreen />
           ) : (
