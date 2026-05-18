@@ -17,6 +17,7 @@ import {
   SADHANA_MONTHLY_12_MONTH_PLAN,
   SADHANA_PAYWALL_COPY,
   SADHANA_PAYWALL_PLANS,
+  SADHANA_SUBSCRIPTION_PRODUCT_IDS,
   getSadhanaPaywallPlanPresentation,
   type SadhanaPaywallPlanId,
 } from '../../billing/products';
@@ -68,13 +69,26 @@ export function OnboardingSequence() {
       .then((products) => {
         if (!cancelled) {
           setSubscriptionProducts(products);
-          setProductLoadState(products.length > 0 ? 'loaded' : 'unavailable');
+          const loaded = products.length > 0;
+          setProductLoadState(loaded ? 'loaded' : 'unavailable');
+          if (!loaded) {
+            void track('paywall_products_unavailable', {
+              reason: 'empty_response',
+              product_ids: SADHANA_SUBSCRIPTION_PRODUCT_IDS.join(','),
+            });
+          }
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (!cancelled) {
           setSubscriptionProducts([]);
           setProductLoadState('unavailable');
+          const message = error instanceof Error ? error.message : 'unknown';
+          void track('paywall_products_unavailable', {
+            reason: 'load_error',
+            product_ids: SADHANA_SUBSCRIPTION_PRODUCT_IDS.join(','),
+            error: message.slice(0, 200),
+          });
         }
       });
 
@@ -344,14 +358,16 @@ export function OnboardingSequence() {
                 styles.unavailableBox,
                 { borderColor: tokens.border, backgroundColor: tokens.bgSecondary },
               ]}
+              accessibilityLabel="Subscriptions are being set up"
+              testID="OnboardingProductsUnavailableBanner"
             >
               <Text style={[styles.promiseTitle, { color: tokens.textPrimary }]}>
-                Store product unavailable
+                Subscriptions are being set up
               </Text>
               <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>
-                App Store did not return the configured Premium product IDs yet.
-                Purchase is disabled, but preview access remains open for
-                TestFlight review.
+                You can still peek inside the app — purchases will be available
+                soon. (Apple Store Connect has not returned the configured
+                Premium product IDs yet.)
               </Text>
             </View>
           )}

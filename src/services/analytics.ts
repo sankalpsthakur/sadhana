@@ -21,7 +21,11 @@ export type AnalyticsEventName =
   | 'referral_sent'
   | 'lapsed_user'
   | 'nps_shown'
-  | 'nps_responded';
+  | 'nps_responded'
+  | 'paywall_products_unavailable'
+  | 'healthkit_init_failed'
+  | 'settings_data_deleted'
+  | 'settings_signed_out';
 
 type NativeAnalyticsModule = {
   track: (event: string, properties: Record<string, unknown>) => Promise<{ status: string; event: string }>;
