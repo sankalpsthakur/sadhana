@@ -59,36 +59,45 @@ export function HealthIntegrationCard({
   const settingsLabel = platform === 'ios' ? 'Open app settings' : `Open ${platformLabel} settings`;
 
   if (!isEnabled) {
+    const failed = Boolean(connectError);
+    const title = isConnecting
+      ? 'Connecting...'
+      : failed
+        ? `${platformLabel} hasn't connected yet`
+        : `Connect ${platformLabel}`;
+    const subtitle = failed
+      ? `${connectError} Tap retry, or open Settings to grant access.`
+      : 'Reads sleep, HRV, and resting heart rate only. Nothing is written to Health. Metrics stay on this device.';
+    const ctaLabel = isConnecting
+      ? 'Connecting...'
+      : failed
+        ? 'Retry'
+        : 'Connect';
     return (
-      <View style={[styles.card, { backgroundColor: tokens.bgSecondary, borderColor: tokens.border }]}>
-        <Text style={[styles.title, { color: tokens.textPrimary }]}>
-          {isConnecting ? 'Connecting...' : `Connect ${platformLabel}`}
-        </Text>
-        <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>
-          Reads sleep, HRV, and resting heart rate only. Nothing is written to Health. Metrics stay on this device.
-        </Text>
-        {connectError && (
-          <Text style={[styles.errorText, { color: tokens.textSecondary }]}>
-            {connectError}
-          </Text>
-        )}
+      <View
+        style={[styles.card, { backgroundColor: tokens.bgSecondary, borderColor: failed ? tokens.accent : tokens.border }]}
+        accessibilityLabel={title}
+        testID="HealthIntegrationCardDisconnected"
+      >
+        <Text style={[styles.title, { color: tokens.textPrimary }]}>{title}</Text>
+        <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>{subtitle}</Text>
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.actionButton, { borderColor: tokens.border }]}
             accessibilityRole="button"
-            accessibilityLabel={`Connect ${platformLabel}`}
+            accessibilityLabel={failed ? `Retry ${platformLabel}` : `Connect ${platformLabel}`}
+            testID="HealthIntegrationConnectButton"
             disabled={isConnecting}
             onPress={onConnect}
           >
-            <Text style={[styles.actionText, { color: tokens.textPrimary }]}>
-              {isConnecting ? 'Connecting...' : 'Connect'}
-            </Text>
+            <Text style={[styles.actionText, { color: tokens.textPrimary }]}>{ctaLabel}</Text>
           </TouchableOpacity>
-          {connectError && onOpenSettings && (
+          {failed && onOpenSettings && (
             <TouchableOpacity
               style={[styles.actionButton, { borderColor: tokens.border }]}
               accessibilityRole="button"
               accessibilityLabel={settingsLabel}
+              testID="HealthIntegrationOpenSettingsButton"
               onPress={onOpenSettings}
             >
               <Text style={[styles.actionText, { color: tokens.textPrimary }]}>Settings</Text>

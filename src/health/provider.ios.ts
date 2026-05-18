@@ -1,12 +1,22 @@
 import AppleHealthKit, { HealthKitPermissions } from 'react-native-health';
 import type { SensorSnapshot } from '../types/dailyCycle';
+import { track } from '../services/analytics';
 
 type InitStatus = 'uninitialized' | 'ready' | 'denied';
+type InitFailureReason = 'unavailable' | 'timeout' | 'denied';
 
 let initStatus: InitStatus = 'uninitialized';
 let initPromise: Promise<boolean> | null = null;
 const INIT_TIMEOUT_MS = 8000;
 const isHealthKitAvailable = () => typeof AppleHealthKit?.initHealthKit === 'function';
+
+function logInitFailure(reason: InitFailureReason, detail?: string) {
+  void track('healthkit_init_failed', {
+    reason,
+    detail: detail ? detail.slice(0, 200) : null,
+    timeout_ms: INIT_TIMEOUT_MS,
+  });
+}
 
 const permissions: HealthKitPermissions = {
   permissions: {
@@ -22,6 +32,7 @@ const permissions: HealthKitPermissions = {
 function initHealthKit(): Promise<boolean> {
   if (!isHealthKitAvailable()) {
     initStatus = 'denied';
+    logInitFailure('unavailable');
     return Promise.resolve(false);
   }
   if (initStatus === 'ready') return Promise.resolve(true);
@@ -33,6 +44,7 @@ function initHealthKit(): Promise<boolean> {
       if (settled) return;
       settled = true;
       initStatus = 'denied';
+      logInitFailure('timeout');
       resolve(false);
     }, INIT_TIMEOUT_MS);
 
@@ -43,6 +55,7 @@ function initHealthKit(): Promise<boolean> {
 
       if (error) {
         initStatus = 'denied';
+        logInitFailure('denied', String(error));
         resolve(false);
         return;
       }
@@ -55,6 +68,10 @@ function initHealthKit(): Promise<boolean> {
 
   initPromise = promise;
   return promise;
+}
+
+export function getHealthKitInitStatus(): InitStatus {
+  return initStatus;
 }
 
 export async function requestHealthPermissions(): Promise<boolean> {
