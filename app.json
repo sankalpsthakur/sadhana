@@ -47,7 +47,13 @@
     "plugins": [
       "expo-font",
       "expo-iap",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-av",
+        {
+          "microphonePermission": false
+        }
+      ]
     ]
   }
 }

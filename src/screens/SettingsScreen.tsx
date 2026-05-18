@@ -17,6 +17,7 @@ import { fontFamilies } from '../theme/fonts';
 import { safetyColors } from '../theme/tokens';
 import { useAppStore } from '../store/useAppStore';
 import { useDailyCycleStore } from '../store/useDailyCycleStore';
+import { useSensoryStore } from '../store/sensoryStore';
 import { restoreSadhanaPurchases } from '../billing';
 import { requestHealthPermissions } from '../health';
 import { track } from '../services/analytics';
@@ -122,6 +123,14 @@ export function SettingsScreen() {
   const [isReconnectingHealth, setIsReconnectingHealth] = useState(false);
   const [isWiping, setIsWiping] = useState(false);
   const [healthRetryMessage, setHealthRetryMessage] = useState<string | null>(null);
+
+  // Sensory preferences (haptic + audio + TTS). Tap to toggle.
+  const voiceEnabled = useSensoryStore((s) => s.voiceEnabled);
+  const hapticsEnabled = useSensoryStore((s) => s.hapticsEnabled);
+  const bellsEnabled = useSensoryStore((s) => s.bellsEnabled);
+  const toggleVoice = useSensoryStore((s) => s.toggleVoice);
+  const toggleHaptics = useSensoryStore((s) => s.toggleHaptics);
+  const toggleBells = useSensoryStore((s) => s.toggleBells);
 
   const openExternal = useCallback(async (url: string, friendlyName: string) => {
     try {
@@ -352,6 +361,30 @@ export function SettingsScreen() {
               </Text>
             </View>
           ) : null}
+        </Section>
+
+        <Section title="Practice">
+          <Row
+            label="Voice guidance"
+            value={voiceEnabled ? 'On' : 'Off'}
+            onPress={toggleVoice}
+            showChevron={false}
+            testID="SettingsVoiceGuidanceRow"
+          />
+          <Row
+            label="Breath haptics"
+            value={hapticsEnabled ? 'On' : 'Off'}
+            onPress={toggleHaptics}
+            showChevron={false}
+            testID="SettingsBreathHapticsRow"
+          />
+          <Row
+            label="Practice bells"
+            value={bellsEnabled ? 'On' : 'Off'}
+            onPress={toggleBells}
+            showChevron={false}
+            testID="SettingsPracticeBellsRow"
+          />
         </Section>
 
         <Section title="Notifications">

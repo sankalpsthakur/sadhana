@@ -7,7 +7,6 @@ import {
   Modal,
   TextInput,
   Dimensions,
-  Vibration,
 } from 'react-native';
 import { useTheme } from '../../theme/useTheme';
 import { useAppStore } from '../../store/useAppStore';
@@ -15,6 +14,7 @@ import { useDailyCycleStore } from '../../store/useDailyCycleStore';
 import { MoodQuadrant } from '../../types';
 import { getTimeWindow } from '../../utils/timeWindow';
 import { fontFamilies } from '../../theme/fonts';
+import { SensoryService } from '../../services/SensoryService';
 
 interface DeepWorkFlowProps {
   visible: boolean;
@@ -71,7 +71,11 @@ export function DeepWorkFlow({
         setTimeRemaining((prev) => {
           if (prev <= 1) {
             setIsTimerActive(false);
-            Vibration.vibrate([0, 500, 200, 500]);
+            // SD8: migrated from `Vibration.vibrate([0, 500, 200, 500])`. The
+            // platform-standard `.warning` notification is more recognizable
+            // and respects the user's in-app "Breath haptics" preference via
+            // SensoryService's settings gate.
+            SensoryService.warningHaptic();
             setStep('output');
             return 0;
           }

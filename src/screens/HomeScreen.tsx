@@ -14,6 +14,19 @@ import { requestHealthPermissions, readSensorSnapshot, openHealthSettings } from
 import { deriveSnapshotSignals } from '../utils/healthSnapshot';
 import { getCooldownStatus } from '../utils/cooldowns';
 import { fontFamilies } from '../theme/fonts';
+import { SensoryService } from '../services/SensoryService';
+
+// SD7: practice milestones at which we fire the celebration bell + TTS.
+// We proxy "streak days" on `totalPracticesCompleted` count because Sadhana
+// does not yet track a daily streak counter; substituting count thresholds
+// keeps the spec intent (rare, earned moments) without expanding the app
+// store schema. Switch to a true day-streak when one is added.
+const PRACTICE_MILESTONES = new Set<number>([7, 30, 100]);
+const MILESTONE_PHRASES: Record<number, string> = {
+  7: 'Seven practices completed. Keep going.',
+  30: 'Thirty practices. A real groove.',
+  100: 'One hundred practices. Devotion shows.',
+};
 
 // Components
 import { SafetyBanner } from '../components/global/SafetyBanner';
@@ -70,6 +83,8 @@ export function HomeScreen() {
   const nightmareStreak = useDailyCycleStore((s) => s.nightmareStreak);
   const nightmareRecoveryStreak = useDailyCycleStore((s) => s.nightmareRecoveryStreak);
 
+  const totalPracticesCompleted = useAppStore((s) => s.totalPracticesCompleted);
+
   // Flow modal states
   const [showMorningCheckin, setShowMorningCheckin] = useState(false);
   const [showSealFlow, setShowSealFlow] = useState(false);
@@ -84,6 +99,20 @@ export function HomeScreen() {
   useEffect(() => {
     dailyCycle.ensureFreshCycle();
   }, []);
+
+  // SD7: practice milestone bell + success haptic + TTS announcement.
+  // Fires once when `totalPracticesCompleted` crosses one of the milestone
+  // thresholds. We use a ref-like effect (run on value change) rather than
+  // a sticky "seen" flag because milestones are rare and re-renders are
+  // already memoized — duplicate fires from a stale render would require
+  // the counter to oscillate, which the store does not do.
+  useEffect(() => {
+    if (!PRACTICE_MILESTONES.has(totalPracticesCompleted)) return;
+    void SensoryService.bell(1.0);
+    SensoryService.successHaptic();
+    const phrase = MILESTONE_PHRASES[totalPracticesCompleted];
+    if (phrase) SensoryService.speak(phrase);
+  }, [totalPracticesCompleted]);
 
   const healthPlatform =
     Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web';

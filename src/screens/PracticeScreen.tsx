@@ -17,6 +17,7 @@ import {
   timeWindowLabels,
 } from '../mock/practices';
 import { track } from '../services/analytics';
+import { SensoryService } from '../services/SensoryService';
 
 type PracticeStatus =
   | 'available'
@@ -166,6 +167,14 @@ export function PracticeScreen() {
     }
 
     const durationSeconds = parseDurationSeconds(practice.duration);
+
+    // SD2: bell at practice start (full volume).
+    // NOTE: in the current instant-log UX, "start" and "completion" fire in
+    // the same handler. When the practice-runner UI ships, SD3 (mid-bell at
+    // duration/2) and SD1/SD5 (breath haptics + voice guidance) will attach
+    // to the runner; the SensoryService API surface is already in place.
+    void SensoryService.bell(1.0);
+
     track('practice_started', {
       practice_id: practice.id,
       practice_name: practice.name,
@@ -180,6 +189,13 @@ export function PracticeScreen() {
       completed: true,
     });
     recordPracticeCompleted();
+
+    // SD4: bell + success haptic at practice end. Bell volume defaults to
+    // 1.0 (same as start) so the journey feels symmetric. The success haptic
+    // is what marks "you finished" tactilely.
+    void SensoryService.bell(1.0);
+    SensoryService.successHaptic();
+
     track('practice_completed', {
       practice_id: practice.id,
       practice_name: practice.name,

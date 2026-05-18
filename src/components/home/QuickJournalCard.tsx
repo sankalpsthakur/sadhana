@@ -8,6 +8,7 @@ import { MoodMeterModal } from '../shared/MoodMeterModal';
 import { BodyMapModal } from '../shared/BodyMapModal';
 import { WordPickerModal } from '../shared/WordPickerModal';
 import { fontFamilies } from '../../theme/fonts';
+import { SensoryService } from '../../services/SensoryService';
 
 export function QuickJournalCard() {
   const { tokens, getQuadrantColor } = useTheme();
@@ -55,6 +56,11 @@ export function QuickJournalCard() {
         word: moodWord,
         source,
       });
+
+      // SD6: warm haptic on journal entry save. The spec called out
+      // JournalScreen, but JournalScreen is a viewer — the actual save lives
+      // here in the Quick Log card. Wire SD6 to where users press "save".
+      SensoryService.warmHaptic();
 
       setBodyZone(null);
       setMoodWord(null);

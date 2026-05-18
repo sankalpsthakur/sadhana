@@ -16,6 +16,7 @@ import { RootTabParamList } from './src/navigation/types';
 import { useFeedbackLoops } from './src/services/feedbackLoops';
 import { NPSPrompt } from './src/components/feedback/NPSPrompt';
 import { WelcomeBackBanner } from './src/components/feedback/WelcomeBackBanner';
+import { SensoryService } from './src/services/SensoryService';
 
 type TextDefaults = {
   allowFontScaling?: boolean;
@@ -49,6 +50,13 @@ function AppContent() {
   const setEntitlement = useAppStore((state) => state.setEntitlement);
   const clearEntitlement = useAppStore((state) => state.clearEntitlement);
   const nightModeActiveAt = useDailyCycleStore((s) => s.nightModeActiveAt);
+
+  // Configure the audio session once at boot so meditation bells play with the
+  // ringer switch on and TTS ducks (rather than stops) ambient music. Safe to
+  // call repeatedly — SensoryService guards against double-init.
+  useEffect(() => {
+    void SensoryService.configureAudioSession();
+  }, []);
 
   useEffect(() => {
     if (!fontsLoaded || fontError) return;
