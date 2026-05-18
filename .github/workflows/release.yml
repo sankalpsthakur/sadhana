@@ -1,0 +1,145 @@
+name: TestFlight Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_testflight:
+        description: 'Set true to archive and upload to App Store Connect. False = preflight only.'
+        required: true
+        type: boolean
+        default: false
+  push:
+    branches:
+      - 'release/*'
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: Preflight gates
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Pod install
+        working-directory: ios
+        run: pod install --repo-update
+
+      - name: Gate 1 — source freshness
+        run: bash scripts/release/gate_source_fresh.sh
+
+      - name: Validate ExportOptions.plist
+        run: |
+          plutil -lint ExportOptions.plist
+          DESTINATION=$(/usr/libexec/PlistBuddy -c 'Print :destination' ExportOptions.plist)
+          METHOD=$(/usr/libexec/PlistBuddy -c 'Print :method' ExportOptions.plist)
+          TEAM_ID=$(/usr/libexec/PlistBuddy -c 'Print :teamID' ExportOptions.plist)
+          [ "$DESTINATION" = "upload" ] || { echo "::error::ExportOptions destination must be upload"; exit 1; }
+          [ "$METHOD" = "app-store-connect" ] || { echo "::error::ExportOptions method must be app-store-connect"; exit 1; }
+          [ -n "$TEAM_ID" ] || { echo "::error::ExportOptions teamID empty"; exit 1; }
+          echo "✓ ExportOptions OK (team=$TEAM_ID)"
+
+      - name: Verify release build settings
+        working-directory: ios
+        run: |
+          xcodebuild -workspace Sadhana.xcworkspace -scheme Sadhana -configuration Release -showBuildSettings > /tmp/build-settings.txt
+          grep -E 'MARKETING_VERSION|CURRENT_PROJECT_VERSION|PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN_STYLE' /tmp/build-settings.txt
+          grep -q 'PRODUCT_BUNDLE_IDENTIFIER = com.sankalpsthakur.sadhana' /tmp/build-settings.txt
+          grep -q 'DEVELOPMENT_TEAM = ZBSZPCY34Y' /tmp/build-settings.txt
+
+      - name: Check ASC API credentials
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          UPLOAD: ${{ inputs.upload_to_testflight }}
+        run: |
+          missing=0
+          for n in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_API_ISSUER_ID APP_STORE_CONNECT_API_KEY_BASE64; do
+            if [ -z "${!n}" ]; then echo "::warning::$n not set"; missing=1; fi
+          done
+          if [ "$UPLOAD" = "true" ] && [ "$missing" -ne 0 ]; then
+            echo "::error::ASC secrets missing; cannot upload."; exit 1
+          fi
+
+  upload:
+    name: Archive and upload to TestFlight
+    runs-on: macos-14
+    needs: preflight
+    if: ${{ inputs.upload_to_testflight == true || startsWith(github.ref, 'refs/heads/release/') }}
+    env:
+      APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: Pod install
+        working-directory: ios
+        run: pod install --repo-update
+
+      - name: Prepare ASC API key
+        working-directory: ios
+        run: |
+          mkdir -p private_keys
+          printf '%s' "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode > "private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
+          chmod 600 "private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
+
+      - name: Archive
+        working-directory: ios
+        run: |
+          xcodebuild archive \
+            -workspace Sadhana.xcworkspace \
+            -scheme Sadhana \
+            -configuration Release \
+            -archivePath "$RUNNER_TEMP/Sadhana.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$PWD/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8" \
+            -authenticationKeyID "$APP_STORE_CONNECT_API_KEY_ID" \
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_API_ISSUER_ID"
+
+      - name: Export and upload
+        working-directory: ios
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Sadhana.xcarchive" \
+            -exportOptionsPlist "$GITHUB_WORKSPACE/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/Sadhana-ipa" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$PWD/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8" \
+            -authenticationKeyID "$APP_STORE_CONNECT_API_KEY_ID" \
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_API_ISSUER_ID"
+
+      - name: Cleanup
+        if: always()
+        working-directory: ios
+        run: rm -rf private_keys

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+export APP_SLUG="sadhana"
+export BUNDLE_ID="com.sankalpsthakur.sadhana"
+export TEAM_ID="ZBSZPCY34Y"
+export SCHEME="Sadhana"
+export WORKSPACE_OR_PROJECT="ios/Sadhana.xcworkspace"
+export PROJECT_FLAG="-workspace"
+export WORKING_DIR="ios"
+export EXPORT_OPTIONS_PLIST="ExportOptions.plist"
+export STOREKIT_CONFIG_PATH="ios/StoreKit/SadhanaProducts.storekit"
+export RENDER_HEALTH_URL="local-first"
+export JOURNEY_SIM_UDID="iPhone 17"
