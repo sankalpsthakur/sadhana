@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable } from 'react-native';
+import { Alert, View, Text, StyleSheet, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { ProductSubscription } from 'expo-iap';
 import { useTheme } from '../../theme/useTheme';
@@ -21,8 +21,9 @@ import {
   type SadhanaPaywallPlanId,
 } from '../../billing/products';
 import { track } from '../../services/analytics';
+import { requestHealthPermissions } from '../../health';
 
-type Step = 'question' | 'path' | 'paywall';
+type Step = 'question' | 'tour' | 'path' | 'health' | 'paywall';
 
 export function OnboardingSequence() {
   const { tokens } = useTheme();
@@ -30,7 +31,9 @@ export function OnboardingSequence() {
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const setPhase = useAppStore((s) => s.setPhase);
   const setEntitlement = useAppStore((s) => s.setEntitlement);
+  const setHealthIntegrationEnabled = useAppStore((s) => s.setHealthIntegrationEnabled);
   const [step, setStep] = useState<Step>('question');
+  const [healthConnectState, setHealthConnectState] = useState<'idle' | 'requesting'>('idle');
   const [selectedPhase, setSelectedPhase] = useState<Phase>(1);
   const [selectedPlanId, setSelectedPlanId] = useState<SadhanaPaywallPlanId>(
     'monthly-12-month'
@@ -162,6 +165,37 @@ export function OnboardingSequence() {
     return selectedPlan.cta;
   };
 
+  const handleConnectHealth = async () => {
+    if (healthConnectState !== 'idle') return;
+    setHealthConnectState('requesting');
+    try {
+      const granted = await requestHealthPermissions();
+      setHealthIntegrationEnabled(granted);
+      if (!granted) {
+        Alert.alert(
+          'Apple Health not connected',
+          "We couldn't read sleep, HRV, or resting heart rate. You can still continue — your practices will use self-reported state. To enable later: Settings → Privacy → Health → Sadhana.",
+          [{ text: 'OK' }]
+        );
+      }
+    } catch {
+      setHealthIntegrationEnabled(false);
+      Alert.alert(
+        'Apple Health not connected',
+        'Permission could not be requested. You can continue and adjust this later in Settings.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setHealthConnectState('idle');
+      setStep('paywall');
+    }
+  };
+
+  const skipHealth = () => {
+    setHealthIntegrationEnabled(false);
+    setStep('paywall');
+  };
+
   return (
     <SafeAreaView
       style={[
@@ -188,10 +222,65 @@ export function OnboardingSequence() {
             accessibilityRole="button"
             accessibilityLabel="Onboarding Continue"
             testID="OnboardingContinueButton"
-            onPress={() => setStep('path')}
+            onPress={() => setStep('tour')}
           >
             <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>Continue</Text>
           </Pressable>
+        </View>
+      )}
+
+      {step === 'tour' && (
+        <View style={styles.content}>
+          <Text style={[styles.heading, { color: tokens.textPrimary }]}>
+            The seven gates open through practice
+          </Text>
+          <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>
+            Sadhana isn't content to consume — it's tools you use when your nervous
+            system needs them. Three you'll meet on day one:
+          </Text>
+
+          <ScrollView style={styles.tourScroll} contentContainerStyle={styles.tourList} showsVerticalScrollIndicator={false}>
+            <View style={[styles.tourCard, { borderColor: tokens.border, backgroundColor: tokens.bgSecondary }]}>
+              <Text style={[styles.tourIcon, { color: tokens.accent }]}>◐</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.tourTitle, { color: tokens.textPrimary }]}>Body Scan</Text>
+                <Text style={[styles.tourBody, { color: tokens.textSecondary }]}>
+                  Read your current state in 60 seconds. The starting point for every practice.
+                </Text>
+              </View>
+            </View>
+            <View style={[styles.tourCard, { borderColor: tokens.border, backgroundColor: tokens.bgSecondary }]}>
+              <Text style={[styles.tourIcon, { color: tokens.accent }]}>≈</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.tourTitle, { color: tokens.textPrimary }]}>Breath Work</Text>
+                <Text style={[styles.tourBody, { color: tokens.textSecondary }]}>
+                  Shift voltage in real time. Different cycles for different states.
+                </Text>
+              </View>
+            </View>
+            <View style={[styles.tourCard, { borderColor: tokens.border, backgroundColor: tokens.bgSecondary }]}>
+              <Text style={[styles.tourIcon, { color: tokens.accent }]}>!</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.tourTitle, { color: tokens.textPrimary }]}>Emergency Downshift</Text>
+                <Text style={[styles.tourBody, { color: tokens.textSecondary }]}>
+                  For panic or overwhelm. Always one tap away in the footer.
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+
+          <View style={[styles.footer, { backgroundColor: tokens.bgPrimary }]}>
+            <Pressable
+              style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Continue to path"
+              testID="OnboardingTourContinueButton"
+              onPress={() => setStep('path')}
+            >
+              <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>Continue</Text>
+            </Pressable>
+          </View>
         </View>
       )}
 
@@ -242,11 +331,59 @@ export function OnboardingSequence() {
               accessibilityRole="button"
               accessibilityLabel={`Work on ${selectedInfo.obstacle}`}
               testID="OnboardingPhaseContinueButton"
-              onPress={() => setStep('paywall')}
+              onPress={() => setStep('health')}
             >
               <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
                 Work on {selectedInfo.obstacle}
               </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
+      {step === 'health' && (
+        <View style={styles.content}>
+          <Text style={[styles.kicker, { color: tokens.accent }]}>Optional</Text>
+          <Text style={[styles.heading, { color: tokens.textPrimary }]}>
+            Personalize with Apple Health
+          </Text>
+          <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>
+            Sleep, HRV, and resting heart rate adapt your practices to your nervous
+            system. Data stays on-device. We never upload it.
+          </Text>
+
+          <View style={[styles.promiseBox, { borderColor: tokens.border, backgroundColor: tokens.bgSecondary }]}>
+            <Text style={[styles.promiseTitle, { color: tokens.textPrimary }]}>What we read</Text>
+            <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>• Sleep duration and stages — to recommend recovery vs. intensity</Text>
+            <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>• Heart rate variability — to read autonomic state</Text>
+            <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>• Resting heart rate — for a daily recovery signal</Text>
+            <Text style={[styles.phaseSub, { color: tokens.textSecondary }]}>If you have no Health data yet, the app will fall back to self-report.</Text>
+          </View>
+
+          <View style={[styles.footer, { backgroundColor: tokens.bgPrimary }]}>
+            <Pressable
+              style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Connect Apple Health"
+              testID="OnboardingHealthConnectButton"
+              disabled={healthConnectState !== 'idle'}
+              onPress={handleConnectHealth}
+            >
+              <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
+                {healthConnectState === 'requesting' ? 'Requesting permission...' : 'Connect Apple Health'}
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[styles.previewButton, { borderColor: tokens.border }]}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Skip Apple Health"
+              testID="OnboardingHealthSkipButton"
+              disabled={healthConnectState !== 'idle'}
+              onPress={skipHealth}
+            >
+              <Text style={[styles.previewText, { color: tokens.textPrimary }]}>Skip for now</Text>
             </Pressable>
           </View>
         </View>
@@ -438,4 +575,10 @@ const styles = StyleSheet.create({
   previewText: { fontFamily: fontFamilies.text.semibold, fontSize: 14 },
   restoreButton: { alignItems: 'center', paddingVertical: 14 },
   restoreText: { fontFamily: fontFamilies.text.medium, fontSize: 13 },
+  tourScroll: { flex: 1 },
+  tourList: { paddingBottom: 24, gap: 12 },
+  tourCard: { flexDirection: 'row', alignItems: 'flex-start', borderWidth: 1, borderRadius: 14, padding: 14, gap: 14 },
+  tourIcon: { fontFamily: fontFamilies.display.semibold, fontSize: 24, width: 32, textAlign: 'center' },
+  tourTitle: { fontFamily: fontFamilies.text.semibold, fontSize: 15, lineHeight: 22, marginBottom: 4 },
+  tourBody: { fontFamily: fontFamilies.text.regular, fontSize: 13, lineHeight: 20 },
 });

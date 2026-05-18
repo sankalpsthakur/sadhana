@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useTheme } from '../../theme/useTheme';
 import { fontFamilies } from '../../theme/fonts';
+import { useAppStore } from '../../store/useAppStore';
+import { GroundingModal } from '../shared/GroundingModal';
 
 export function EmergencyFooter() {
   const { tokens, safety } = useTheme();
+  const setLock = useAppStore((s) => s.setLock);
+  const [groundingMode, setGroundingMode] = useState<'breath' | 'bodyscan' | null>(null);
 
   const handleEmergencyPress = () => {
     Alert.alert(
@@ -16,8 +20,8 @@ export function EmergencyFooter() {
           text: 'Activate',
           style: 'destructive',
           onPress: () => {
-            // In a real app, this would trigger safety protocols
-            Alert.alert('Kavacha Activated', 'Grounding practices are now available. Take your time.');
+            setLock('kavacha', true);
+            setGroundingMode('bodyscan');
           },
         },
       ]
@@ -30,10 +34,17 @@ export function EmergencyFooter() {
         style={[styles.button, { backgroundColor: safety.red + '20', borderColor: safety.red }]}
         onPress={handleEmergencyPress}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Emergency Downshift"
       >
         <Text style={[styles.icon]}>⚡</Text>
         <Text style={[styles.text, { color: safety.red }]}>Emergency Downshift</Text>
       </TouchableOpacity>
+      <GroundingModal
+        visible={groundingMode !== null}
+        mode={groundingMode ?? 'bodyscan'}
+        onClose={() => setGroundingMode(null)}
+      />
     </View>
   );
 }

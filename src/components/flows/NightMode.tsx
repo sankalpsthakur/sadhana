@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,8 +10,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/useTheme';
 import { useDailyCycleStore } from '../../store/useDailyCycleStore';
+import { useAppStore } from '../../store/useAppStore';
 import { getTimeWindow } from '../../utils/timeWindow';
 import { fontFamilies } from '../../theme/fonts';
+import { GroundingModal } from '../shared/GroundingModal';
 
 /**
  * Night Mode Screen
@@ -32,26 +34,29 @@ export function NightModeScreen() {
   const clearNightMode = useDailyCycleStore((s) => s.clearNightMode);
   const inferWake = useDailyCycleStore((s) => s.inferWake);
   const demoNow = useDailyCycleStore((s) => s.demoNow);
+  const setLock = useAppStore((s) => s.setLock);
 
   const now = demoNow ?? new Date();
   const window = getTimeWindow(now);
   const canExitNightMode = window !== 'NIGHT';
 
+  const [groundingMode, setGroundingMode] = useState<'breath' | 'bodyscan' | null>(null);
+
+  const openGrounding = (mode: 'breath' | 'bodyscan') => setGroundingMode(mode);
+  const closeGrounding = () => setGroundingMode(null);
+
   const handleEmergencyPress = () => {
     Alert.alert(
       'Emergency Downshift',
-      'This will activate grounding protocols. Are you sure?',
+      'This will activate Kavacha (Armor) mode and start a body scan. Are you sure?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Activate',
           style: 'destructive',
           onPress: () => {
-            Alert.alert(
-              'Grounding Active',
-              'Body scan and breath work are available.\n\nNo screens after this.',
-              [{ text: 'Begin Body Scan' }]
-            );
+            setLock('kavacha', true);
+            openGrounding('bodyscan');
           },
         },
       ]
@@ -137,18 +142,22 @@ export function NightModeScreen() {
           </Text>
           <TouchableOpacity
             style={[styles.optionButton, { borderColor: nightPalette.border }]}
-            onPress={() => Alert.alert('Body Scan', 'Starting 10-minute body scan...')}
+            onPress={() => openGrounding('bodyscan')}
+            accessibilityRole="button"
+            accessibilityLabel="Begin body scan"
           >
             <Text style={[styles.optionText, { color: nightPalette.accent }]}>
-              Body Scan (10 min)
+              Body Scan
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.optionButton, { borderColor: nightPalette.border }]}
-            onPress={() => Alert.alert('4-7-8 Breath', 'Starting breath cycle...')}
+            onPress={() => openGrounding('breath')}
+            accessibilityRole="button"
+            accessibilityLabel="Begin breath cycle"
           >
             <Text style={[styles.optionText, { color: nightPalette.accent }]}>
-              4-7-8 Breath (5 min)
+              Breath Cycle (4-4-6)
             </Text>
           </TouchableOpacity>
         </View>
@@ -169,6 +178,12 @@ export function NightModeScreen() {
           Always available
         </Text>
       </View>
+
+      <GroundingModal
+        visible={groundingMode !== null}
+        mode={groundingMode ?? 'breath'}
+        onClose={closeGrounding}
+      />
     </SafeAreaView>
   );
 }
