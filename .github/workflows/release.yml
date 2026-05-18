@@ -125,7 +125,10 @@ jobs:
             -allowProvisioningUpdates \
             -authenticationKeyPath "$PWD/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8" \
             -authenticationKeyID "$APP_STORE_CONNECT_API_KEY_ID" \
-            -authenticationKeyIssuerID "$APP_STORE_CONNECT_API_ISSUER_ID"
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_API_ISSUER_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            CODE_SIGN_STYLE=Automatic \
+            DEVELOPMENT_TEAM=ZBSZPCY34Y
 
       - name: Export and upload
         working-directory: ios
@@ -137,7 +140,10 @@ jobs:
             -allowProvisioningUpdates \
             -authenticationKeyPath "$PWD/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8" \
             -authenticationKeyID "$APP_STORE_CONNECT_API_KEY_ID" \
-            -authenticationKeyIssuerID "$APP_STORE_CONNECT_API_ISSUER_ID"
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_API_ISSUER_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            CODE_SIGN_STYLE=Automatic \
+            DEVELOPMENT_TEAM=ZBSZPCY34Y
 
       - name: Cleanup
         if: always()
