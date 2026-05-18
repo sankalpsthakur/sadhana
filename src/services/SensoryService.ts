@@ -36,9 +36,6 @@ async function loadBell(): Promise<Audio.Sound> {
 
   bellLoadingPromise = (async () => {
     try {
-      // TODO(asset): meditation-bell.mp3 is currently a 1-second silence
-      // placeholder. Replace with a 3-4s Tibetan singing bowl / warm bell
-      // tone (CC0 or CC-BY) before the next sensory polish wave.
       const { sound } = await Audio.Sound.createAsync(
         require('../../assets/audio/meditation-bell.mp3'),
         { volume: 1.0 }
