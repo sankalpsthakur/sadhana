@@ -43,6 +43,8 @@ export function NightModeScreen() {
   const [groundingMode, setGroundingMode] = useState<'breath' | 'bodyscan' | null>(null);
 
   const openGrounding = (mode: 'breath' | 'bodyscan') => setGroundingMode(mode);
+  // Emergency flow doesn't log practices, so the completion outcome is ignored;
+  // we only need to dismiss the modal regardless of whether the user finished.
   const closeGrounding = () => setGroundingMode(null);
 
   const handleEmergencyPress = () => {
@@ -182,7 +184,7 @@ export function NightModeScreen() {
       <GroundingModal
         visible={groundingMode !== null}
         mode={groundingMode ?? 'breath'}
-        onClose={closeGrounding}
+        onClose={() => closeGrounding()}
       />
     </SafeAreaView>
   );

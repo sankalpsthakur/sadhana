@@ -1,10 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet, SectionList, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/useTheme';
 import { useAppStore } from '../store/useAppStore';
 import { useDailyCycleStore } from '../store/useDailyCycleStore';
 import { PracticeCard } from '../components/shared/PracticeCard';
+import { GroundingModal, GroundingMode, GroundingCompletion } from '../components/shared/GroundingModal';
+import { ComingSoonModal } from '../components/shared/ComingSoonModal';
 import { getCooldownStatus } from '../utils/cooldowns';
 import { fontFamilies } from '../theme/fonts';
 import {
@@ -16,6 +18,7 @@ import {
   getCurrentTimeWindow,
   timeWindowLabels,
 } from '../mock/practices';
+import { getPracticeModalKind } from '../mock/practiceModalMap';
 import { track } from '../services/analytics';
 
 type PracticeStatus =
@@ -141,18 +144,16 @@ export function PracticeScreen() {
     return result;
   }, [phase, mode, stability, moodQuadrant, completedIds, cooldownById]);
 
-  const parseDurationSeconds = (duration: string): number => {
-    // Common formats in mock data: "5:00", "20:00"
-    const parts = duration.split(':');
-    if (parts.length === 2) {
-      const mins = Number(parts[0]);
-      const secs = Number(parts[1]);
-      if (Number.isFinite(mins) && Number.isFinite(secs)) return mins * 60 + secs;
-    }
-    const minsOnly = Number(duration);
-    if (Number.isFinite(minsOnly)) return minsOnly * 60;
-    return 5 * 60;
-  };
+  // Active modal state — exactly one of grounding / comingSoon is set at a time.
+  // We track the practice itself (not just the id) so completion handlers can
+  // record the entry without re-resolving from the library.
+  const [activeGrounding, setActiveGrounding] = useState<
+    { practice: Practice; modalMode: GroundingMode } | null
+  >(null);
+  const [comingSoonPractice, setComingSoonPractice] = useState<Practice | null>(null);
+  // Capture the start timestamp so we can record real elapsed seconds on
+  // completion, not the nominal library duration.
+  const startedAtRef = useRef<Date | null>(null);
 
   const handlePracticePress = (practice: Practice) => {
     if (completedIds.has(practice.id)) {
@@ -165,30 +166,62 @@ export function PracticeScreen() {
       return;
     }
 
-    const durationSeconds = parseDurationSeconds(practice.duration);
     track('practice_started', {
       practice_id: practice.id,
       practice_name: practice.name,
       phase,
       mode,
     });
+
+    const kind = getPracticeModalKind(practice.id);
+    if (kind === 'comingSoon') {
+      // Don't record anything — honest placeholder rather than silent log.
+      setComingSoonPractice(practice);
+      return;
+    }
+
+    startedAtRef.current = new Date();
+    setActiveGrounding({ practice, modalMode: kind });
+  };
+
+  const handleGroundingClose = (outcome: GroundingCompletion) => {
+    const session = activeGrounding;
+    setActiveGrounding(null);
+    if (!session) return;
+
+    if (outcome !== 'complete') {
+      // User backed out before the eligibility gate — don't log a phantom
+      // practice. The 'stopped' label on the button told them this.
+      track('practice_stopped', {
+        practice_id: session.practice.id,
+        practice_name: session.practice.name,
+        phase,
+        mode,
+      });
+      return;
+    }
+
+    const startedAt = startedAtRef.current ?? new Date();
+    const elapsedSeconds = Math.max(
+      1,
+      Math.round((Date.now() - startedAt.getTime()) / 1000)
+    );
+
     recordPractice({
-      practiceId: practice.id,
-      practiceName: practice.name,
+      practiceId: session.practice.id,
+      practiceName: session.practice.name,
       timestamp: new Date(),
-      durationSeconds,
+      durationSeconds: elapsedSeconds,
       completed: true,
     });
     recordPracticeCompleted();
     track('practice_completed', {
-      practice_id: practice.id,
-      practice_name: practice.name,
-      duration_seconds: durationSeconds,
+      practice_id: session.practice.id,
+      practice_name: session.practice.name,
+      duration_seconds: elapsedSeconds,
       phase,
       mode,
     });
-
-    Alert.alert('Logged', `${practice.name} (${Math.round(durationSeconds / 60)} min)`);
   };
 
   const renderSectionHeader = ({ section }: { section: Section }) => (
@@ -263,6 +296,21 @@ export function PracticeScreen() {
           </Text>
         </View>
       )}
+
+      {activeGrounding && (
+        <GroundingModal
+          visible={activeGrounding !== null}
+          mode={activeGrounding.modalMode}
+          title={activeGrounding.practice.name}
+          onClose={handleGroundingClose}
+        />
+      )}
+      <ComingSoonModal
+        visible={comingSoonPractice !== null}
+        practiceName={comingSoonPractice?.name ?? ''}
+        blurb={comingSoonPractice?.purpose}
+        onClose={() => setComingSoonPractice(null)}
+      />
     </SafeAreaView>
   );
 }

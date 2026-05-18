@@ -43,6 +43,7 @@ export function EmergencyFooter() {
       <GroundingModal
         visible={groundingMode !== null}
         mode={groundingMode ?? 'bodyscan'}
+        // Emergency flow doesn't log a practice entry, so any outcome dismisses.
         onClose={() => setGroundingMode(null)}
       />
     </View>

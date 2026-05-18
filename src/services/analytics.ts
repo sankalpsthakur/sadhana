@@ -11,6 +11,7 @@ export type AnalyticsEventName =
   | 'session_end'
   | 'practice_started'
   | 'practice_completed'
+  | 'practice_stopped'
   | 'phase_advanced'
   | 'sthiti_milestone'
   | 'stability_check'
