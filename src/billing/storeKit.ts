@@ -18,6 +18,7 @@ import {
   type SadhanaSubscriptionProductId,
   isSadhanaSubscriptionProductId,
 } from './products';
+import { uiTestFlags } from '../utils/uiTestFlags';
 
 export type SadhanaEntitlementSource =
   | 'active-subscription'
@@ -74,6 +75,14 @@ function toEntitlementSnapshot(
 }
 
 export async function loadSadhanaSubscriptionProducts() {
+  // XCUITest journey J5 mocks an empty App Store Connect response to verify
+  // the user-facing "Products unavailable" banner + analytics fire. The flag
+  // short-circuits before the live IAP call so test runs are deterministic.
+  if (uiTestFlags.storeKitMock === 'empty') {
+    throw new Error(
+      `[UITestStoreKitMock=empty] Simulated empty App Store response for: ${SADHANA_SUBSCRIPTION_PRODUCT_IDS.join(', ')}.`
+    );
+  }
   await ensureStoreConnection();
   const products = await fetchProducts({
     skus: [...SADHANA_SUBSCRIPTION_PRODUCT_IDS],

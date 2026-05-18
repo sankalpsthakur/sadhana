@@ -77,7 +77,11 @@ export function HealthIntegrationCard({
       <View
         style={[styles.card, { backgroundColor: tokens.bgSecondary, borderColor: failed ? tokens.accent : tokens.border }]}
         accessibilityLabel={title}
-        testID="HealthIntegrationCardDisconnected"
+        // Two testIDs: the original is the long-form anchor; the alias
+        // `home.healthKitPendingCard` is the short name referenced by the
+        // XCUITest journey-acceptance suite (J4) and is set only when the
+        // card is in a connect / failed state, which is the "pending" UI.
+        testID={failed ? 'home.healthKitPendingCard' : 'HealthIntegrationCardDisconnected'}
       >
         <Text style={[styles.title, { color: tokens.textPrimary }]}>{title}</Text>
         <Text style={[styles.subtitle, { color: tokens.textSecondary }]}>{subtitle}</Text>

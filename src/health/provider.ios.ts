@@ -1,6 +1,7 @@
 import AppleHealthKit, { HealthKitPermissions } from 'react-native-health';
 import type { SensorSnapshot } from '../types/dailyCycle';
 import { track } from '../services/analytics';
+import { uiTestFlags } from '../utils/uiTestFlags';
 
 type InitStatus = 'uninitialized' | 'ready' | 'denied';
 type InitFailureReason = 'unavailable' | 'timeout' | 'denied';
@@ -30,6 +31,14 @@ const permissions: HealthKitPermissions = {
 };
 
 function initHealthKit(): Promise<boolean> {
+  // XCUITest journey J4 simulates a HealthKit init failure to verify the
+  // user-facing "Health permissions pending" surface. The flag is opt-in
+  // via launch argument and absent in production builds.
+  if (uiTestFlags.healthKitInitFail) {
+    initStatus = 'denied';
+    logInitFailure('denied', 'ui-test-fail');
+    return Promise.resolve(false);
+  }
   if (!isHealthKitAvailable()) {
     initStatus = 'denied';
     logInitFailure('unavailable');

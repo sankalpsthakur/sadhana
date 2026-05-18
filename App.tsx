@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
-import { LogBox, Text, useColorScheme } from 'react-native';
+import { LogBox, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { ThemeProvider } from './src/theme/ThemeContext';
@@ -16,7 +16,9 @@ import { RootTabParamList } from './src/navigation/types';
 import { useFeedbackLoops } from './src/services/feedbackLoops';
 import { NPSPrompt } from './src/components/feedback/NPSPrompt';
 import { WelcomeBackBanner } from './src/components/feedback/WelcomeBackBanner';
-import { SensoryService } from './src/services/SensoryService';
+import { SensoryService, sensoryCounters } from './src/services/SensoryService';
+import { useSensoryStore } from './src/store/sensoryStore';
+import { uiTestFlags } from './src/utils/uiTestFlags';
 
 type TextDefaults = {
   allowFontScaling?: boolean;
@@ -57,6 +59,51 @@ function AppContent() {
   useEffect(() => {
     void SensoryService.configureAudioSession();
   }, []);
+
+  // XCUITest journey-acceptance hooks. All flags are no-ops in production
+  // (launch arguments are absent). See src/utils/uiTestFlags.ts for the
+  // enumerated flag surface and ios/SadhanaUITests/JourneyAcceptanceTests.swift
+  // for the consuming tests.
+  useEffect(() => {
+    if (!uiTestFlags.enabled) return;
+
+    // Default-skip onboarding under UITestMode so journey 1 (the keystone
+    // tab-render gate) and downstream journeys can rely on the tab bar being
+    // present at launch. Tests that want to verify the onboarding route
+    // (notably J5 — paywall product fetch) opt back IN with
+    // -UITestResetOnboarding 1.
+    if (uiTestFlags.resetOnboarding) {
+      useAppStore.setState({ hasOnboarded: false, entitlement: null });
+    } else {
+      useAppStore.setState({ hasOnboarded: true });
+    }
+    if (uiTestFlags.seedPracticesCompleted !== null) {
+      useAppStore.setState({
+        totalPracticesCompleted: uiTestFlags.seedPracticesCompleted,
+      });
+    }
+    if (uiTestFlags.voiceGuidanceOff) {
+      useSensoryStore.getState().setVoice(false);
+    }
+  }, []);
+
+  // Sensory counter mirror — re-renders the JSON label whenever counters
+  // change so XCUITest can poll a stable accessibility label. Lives only in
+  // dev/test builds. The polling loop is cheap (~10 Hz) and short-circuits
+  // when the bag is unchanged.
+  const [countersJson, setCountersJson] = useState(() => JSON.stringify(sensoryCounters));
+  useEffect(() => {
+    if (!__DEV__) return;
+    let last = countersJson;
+    const id = setInterval(() => {
+      const next = JSON.stringify(sensoryCounters);
+      if (next !== last) {
+        last = next;
+        setCountersJson(next);
+      }
+    }, 100);
+    return () => clearInterval(id);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!fontsLoaded || fontError) return;
@@ -113,6 +160,17 @@ function AppContent() {
           <OnboardingSequence />
         )}
         <StatusBar style={statusStyle} />
+        {__DEV__ && (
+          // Test-observability surface for the XCUITest journey-acceptance
+          // suite. Off-screen, zero visual impact, only mounted in dev/test
+          // builds. accessibilityLabel is a JSON stringified mirror of the
+          // counters in SensoryService.
+          <View
+            testID="sensory.counters"
+            accessibilityLabel={countersJson}
+            style={{ position: 'absolute', width: 1, height: 1, top: -1, left: -1 }}
+          />
+        )}
       </NavigationContainer>
     </ThemeProvider>
   );

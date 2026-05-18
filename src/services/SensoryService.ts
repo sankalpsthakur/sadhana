@@ -30,6 +30,19 @@ let bellSound: Audio.Sound | null = null;
 let bellLoadingPromise: Promise<Audio.Sound> | null = null;
 let didConfigureAudioSession = false;
 
+// Test-observability counters. Incremented on every successful (gate-passed)
+// invocation. Read by the XCUITest journey-acceptance suite via the
+// `<View testID="sensory.counters" accessibilityLabel={JSON.stringify(...)} />`
+// surface mounted in `App.tsx` under `__DEV__`. Production builds (where
+// `__DEV__` is false) never render the surface, so this object is dead state.
+export const sensoryCounters = {
+  bell: 0,
+  warm: 0,
+  success: 0,
+  warning: 0,
+  speak: 0,
+};
+
 async function loadBell(): Promise<Audio.Sound> {
   if (bellSound) return bellSound;
   if (bellLoadingPromise) return bellLoadingPromise;
@@ -85,6 +98,7 @@ export const SensoryService = {
    */
   async bell(volume: number = 1.0): Promise<void> {
     if (!useSensoryStore.getState().bellsEnabled) return;
+    sensoryCounters.bell += 1;
     try {
       const sound = await loadBell();
       await sound.setVolumeAsync(Math.max(0, Math.min(1, volume)));
@@ -102,6 +116,9 @@ export const SensoryService = {
    */
   breath(): void {
     if (!useSensoryStore.getState().hapticsEnabled) return;
+    // breath() not counted — it fires at ~6 Hz during a practice and would
+    // dominate the counter telemetry. Add a separate `breath` counter only if
+    // a future test needs it.
     Haptics.selectionAsync().catch(() => {
       // Swallow — haptic hardware unavailable on simulator or older devices.
     });
@@ -113,6 +130,7 @@ export const SensoryService = {
    */
   warmHaptic(): void {
     if (!useSensoryStore.getState().hapticsEnabled) return;
+    sensoryCounters.warm += 1;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
   },
 
@@ -121,6 +139,7 @@ export const SensoryService = {
    */
   successHaptic(): void {
     if (!useSensoryStore.getState().hapticsEnabled) return;
+    sensoryCounters.success += 1;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
   },
 
@@ -131,6 +150,7 @@ export const SensoryService = {
    */
   warningHaptic(): void {
     if (!useSensoryStore.getState().hapticsEnabled) return;
+    sensoryCounters.warning += 1;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
   },
 
@@ -145,6 +165,7 @@ export const SensoryService = {
   speak(text: string, opts?: Partial<Speech.SpeechOptions>): void {
     if (!useSensoryStore.getState().voiceEnabled) return;
     if (!text || !text.trim()) return;
+    sensoryCounters.speak += 1;
     Speech.stop();
     Speech.speak(text, {
       language: 'en-US',

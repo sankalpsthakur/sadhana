@@ -170,6 +170,10 @@ export function BottomTabNavigator() {
         name="Home"
         component={HomeScreen}
         options={{
+          // testID exposed for XCUITest journey-acceptance suite (see
+          // ios/SadhanaUITests/JourneyAcceptanceTests.swift). Production
+          // behavior is unchanged.
+          tabBarButtonTestID: 'tab.home',
           tabBarIcon: ({ focused }) => (
             <TabIcon icon="home" label="Home" focused={focused} />
           ),
@@ -179,6 +183,7 @@ export function BottomTabNavigator() {
         name="Practice"
         component={PracticeScreen}
         options={{
+          tabBarButtonTestID: 'tab.practice',
           tabBarIcon: ({ focused }) => (
             <TabIcon icon="practice" label="Practice" focused={focused} />
           ),
@@ -188,6 +193,7 @@ export function BottomTabNavigator() {
         name="Journal"
         component={JournalScreen}
         options={{
+          tabBarButtonTestID: 'tab.journal',
           tabBarIcon: ({ focused }) => (
             <TabIcon icon="journal" label="Journal" focused={focused} />
           ),
@@ -197,6 +203,7 @@ export function BottomTabNavigator() {
         name="Trends"
         component={premiumTabsLocked ? PremiumLockedScreen : TrendsScreen}
         options={{
+          tabBarButtonTestID: 'tab.trends',
           tabBarIcon: ({ focused }) => (
             <TabIcon
               icon="trends"
@@ -211,6 +218,7 @@ export function BottomTabNavigator() {
         name="Ladder"
         component={premiumTabsLocked ? PremiumLockedScreen : LadderScreen}
         options={{
+          tabBarButtonTestID: 'tab.ladder',
           tabBarIcon: ({ focused }) => (
             <TabIcon
               icon="ladder"
@@ -225,6 +233,7 @@ export function BottomTabNavigator() {
         name="Settings"
         component={SettingsScreen}
         options={{
+          tabBarButtonTestID: 'tab.settings',
           tabBarIcon: ({ focused }) => (
             <TabIcon icon="settings" label="Settings" focused={focused} />
           ),
