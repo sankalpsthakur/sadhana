@@ -331,6 +331,17 @@ if (
   fail('Final onboarding paywall is not wired to the monthly commitment plan selector');
 }
 
+if (
+  onboardingSource.includes('Peek inside now') &&
+  onboardingSource.includes('handlePrimaryPaywallAction') &&
+  onboardingSource.includes('productLoadState !==') &&
+  onboardingSource.includes('peekInside()')
+) {
+  pass('Unavailable App Store products make preview the primary paywall action');
+} else {
+  fail('Unavailable App Store products can still trap onboarding behind a disabled paywall CTA');
+}
+
 const storeKitConfig = readText('store-readiness/SadhanaProducts.storekit');
 if (
   storeKitConfig.includes('com.sadhana.premium.annual') &&

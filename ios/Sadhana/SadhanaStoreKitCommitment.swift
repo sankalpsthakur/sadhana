@@ -122,8 +122,6 @@ private extension Product {
     }
   }
 }
-#endif
-
 @available(iOS 26.4, *)
 private extension Product.SubscriptionPeriod {
   var isTwelveMonths: Bool {
@@ -137,3 +135,4 @@ private extension Product.SubscriptionPeriod {
     }
   }
 }
+#endif

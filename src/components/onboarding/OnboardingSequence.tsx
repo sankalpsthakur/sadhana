@@ -50,6 +50,8 @@ export function OnboardingSequence() {
   }, [subscriptionProducts]);
   const selectedProductAvailable = productsById.has(selectedPlan.productId);
   const productUnavailable = productLoadState === 'unavailable';
+  const canPurchaseSelectedProduct =
+    productLoadState === 'loaded' && selectedProductAvailable;
 
   const finishOnboarding = () => {
     setPhase(selectedPhase);
@@ -84,7 +86,7 @@ export function OnboardingSequence() {
   const startSelectedPlan = async () => {
     if (purchaseState !== 'idle') return;
     setPurchaseError(null);
-    if (productUnavailable || !selectedProductAvailable) {
+    if (!canPurchaseSelectedProduct) {
       setPurchaseError('This Premium product is not available from App Store Connect yet. You can still peek inside while the subscription record is fixed.');
       return;
     }
@@ -140,6 +142,24 @@ export function OnboardingSequence() {
   const peekInside = () => {
     setEntitlement(null);
     finishOnboarding();
+  };
+
+  const handlePrimaryPaywallAction = () => {
+    if (purchaseState !== 'idle') return;
+    if (canPurchaseSelectedProduct) {
+      void startSelectedPlan();
+      return;
+    }
+    if (productLoadState !== 'loading') {
+      peekInside();
+    }
+  };
+
+  const primaryPaywallLabel = () => {
+    if (purchaseState === 'purchasing') return 'Opening App Store...';
+    if (productLoadState === 'loading') return 'Checking App Store...';
+    if (!canPurchaseSelectedProduct) return 'Peek inside now';
+    return selectedPlan.cta;
   };
 
   return (
@@ -342,17 +362,13 @@ export function OnboardingSequence() {
             style={[styles.primaryButton, { backgroundColor: tokens.accent }]}
             hitSlop={12}
             accessibilityRole="button"
-            accessibilityLabel={selectedPlan.cta}
+            accessibilityLabel={primaryPaywallLabel()}
             testID="OnboardingStartPlanButton"
-            disabled={purchaseState !== 'idle' || productUnavailable || !selectedProductAvailable}
-            onPress={startSelectedPlan}
+            disabled={purchaseState !== 'idle' || productLoadState === 'loading'}
+            onPress={handlePrimaryPaywallAction}
           >
             <Text style={[styles.primaryText, { color: tokens.bgPrimary }]}>
-              {purchaseState === 'purchasing'
-                ? 'Opening App Store...'
-                : productUnavailable || !selectedProductAvailable
-                  ? 'Premium unavailable'
-                  : selectedPlan.cta}
+              {primaryPaywallLabel()}
             </Text>
           </Pressable>
           <Pressable
