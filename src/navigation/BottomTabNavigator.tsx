@@ -138,7 +138,10 @@ export function BottomTabNavigator() {
   const { tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const stability = useAppStore((state) => state.stability);
+  const entitlement = useAppStore((state) => state.entitlement);
+  const hasPremium = entitlement?.active === true;
   const trendsLocked = isTrendsLocked(stability);
+  const premiumTabsLocked = !hasPremium;
   const bottomInset = Math.max(insets.bottom, 10);
 
   return (
@@ -184,28 +187,60 @@ export function BottomTabNavigator() {
       />
       <Tab.Screen
         name="Trends"
-        component={TrendsScreen}
+        component={premiumTabsLocked ? PremiumLockedScreen : TrendsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon
               icon="trends"
               label="Trends"
               focused={focused}
-              isLocked={trendsLocked}
+              isLocked={premiumTabsLocked || trendsLocked}
             />
           ),
         }}
       />
       <Tab.Screen
         name="Ladder"
-        component={LadderScreen}
+        component={premiumTabsLocked ? PremiumLockedScreen : LadderScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="ladder" label="Ladder" focused={focused} />
+            <TabIcon
+              icon="ladder"
+              label="Ladder"
+              focused={focused}
+              isLocked={premiumTabsLocked}
+            />
           ),
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+function PremiumLockedScreen() {
+  const { tokens } = useTheme();
+
+  return (
+    <View style={[styles.lockedScreen, { backgroundColor: tokens.bgPrimary }]}>
+      <View
+        style={[
+          styles.lockedPanel,
+          {
+            backgroundColor: tokens.bgSecondary,
+            borderColor: tokens.border,
+          },
+        ]}
+      >
+        <Text style={[styles.lockedScreenTitle, { color: tokens.textPrimary }]}>
+          Premium preview locked
+        </Text>
+        <Text style={[styles.lockedScreenBody, { color: tokens.textSecondary }]}>
+          You can peek at the core daily practice now. Premium still unlocks the
+          full ladder, trends, and all-gate depth work once App Store products are
+          available.
+        </Text>
+      </View>
+    </View>
   );
 }
 
@@ -325,5 +360,26 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.text.medium,
     fontSize: 10,
     textAlign: 'center',
+  },
+  lockedScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+  },
+  lockedPanel: {
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 20,
+    gap: 10,
+  },
+  lockedScreenTitle: {
+    fontFamily: fontFamilies.text.semibold,
+    fontSize: 18,
+    lineHeight: 24,
+  },
+  lockedScreenBody: {
+    fontFamily: fontFamilies.text.regular,
+    fontSize: 13,
+    lineHeight: 20,
   },
 });
