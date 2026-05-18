@@ -6,6 +6,7 @@ export type RootTabParamList = {
   Journal: undefined;
   Trends: undefined;
   Ladder: undefined;
+  Settings: undefined;
 };
 
 export type HomeScreenProps = BottomTabScreenProps<RootTabParamList, 'Home'>;
@@ -13,3 +14,4 @@ export type PracticeScreenProps = BottomTabScreenProps<RootTabParamList, 'Practi
 export type JournalScreenProps = BottomTabScreenProps<RootTabParamList, 'Journal'>;
 export type TrendsScreenProps = BottomTabScreenProps<RootTabParamList, 'Trends'>;
 export type LadderScreenProps = BottomTabScreenProps<RootTabParamList, 'Ladder'>;
+export type SettingsScreenProps = BottomTabScreenProps<RootTabParamList, 'Settings'>;

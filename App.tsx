@@ -35,6 +35,7 @@ const linking: LinkingOptions<RootTabParamList> = {
       Journal: 'flow/dream-capture',
       Trends: 'open/trends',
       Ladder: 'open/ladder',
+      Settings: 'open/settings',
     },
   },
 };

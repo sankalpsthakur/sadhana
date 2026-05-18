@@ -7,6 +7,7 @@ import { PracticeScreen } from '../screens/PracticeScreen';
 import { JournalScreen } from '../screens/JournalScreen';
 import { TrendsScreen } from '../screens/TrendsScreen';
 import { LadderScreen } from '../screens/LadderScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 import { useTheme } from '../theme/useTheme';
 import { useAppStore } from '../store/useAppStore';
 import { isTrendsLocked } from '../store/selectors';
@@ -22,7 +23,7 @@ interface TabIconProps {
   isLocked?: boolean;
 }
 
-type TabIconName = 'home' | 'practice' | 'journal' | 'trends' | 'ladder';
+type TabIconName = 'home' | 'practice' | 'journal' | 'trends' | 'ladder' | 'settings';
 
 function TabIcon({ icon, label, focused, isLocked }: TabIconProps) {
   const { tokens } = useTheme();
@@ -131,6 +132,13 @@ function TabGlyph({ icon, color, accent }: TabGlyphProps) {
           ))}
         </View>
       );
+    case 'settings':
+      return (
+        <View style={styles.glyphBox}>
+          <View style={[styles.settingsOuter, { borderColor: color }]} />
+          <View style={[styles.settingsInner, { backgroundColor: accent }]} />
+        </View>
+      );
   }
 }
 
@@ -210,6 +218,15 @@ export function BottomTabNavigator() {
               focused={focused}
               isLocked={premiumTabsLocked}
             />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="settings" label="Settings" focused={focused} />
           ),
         }}
       />
@@ -340,6 +357,19 @@ const styles = StyleSheet.create({
     width: 10,
     height: 2,
     borderRadius: 1,
+  },
+  settingsOuter: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+  },
+  settingsInner: {
+    position: 'absolute',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   lockedMark: {
     width: 20,
